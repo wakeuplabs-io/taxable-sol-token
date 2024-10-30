@@ -1,0 +1,25 @@
+{
+  "name": "taxable-sol-token",
+  "version": "1.0.0",
+  "description": "Taxable SPL token on solana",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "npx esrun src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "solana",
+    "spl",
+    "taxable"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@solana-developers/helpers": "^2.5.6",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.4",
+    "dotenv": "^16.4.5",
+    "esrun": "^3.2.26",
+    "typescript": "^5.6.3"
+  }
+}
