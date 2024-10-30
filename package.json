@@ -17,6 +17,7 @@
   "dependencies": {
     "@solana-developers/helpers": "^2.5.6",
     "@solana/spl-token": "^0.4.9",
+    "@solana/spl-token-metadata": "^0.1.6",
     "@solana/web3.js": "^1.95.4",
     "dotenv": "^16.4.5",
     "esrun": "^3.2.26",
