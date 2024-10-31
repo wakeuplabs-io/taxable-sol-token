@@ -17,40 +17,51 @@ import {
   TYPE_SIZE,
   LENGTH_SIZE,
   createInitializeMetadataPointerInstruction,
+  createMintToInstruction,
+  createSetAuthorityInstruction,
+  AuthorityType,
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
 } from "@solana/spl-token";
 
 import {
   createInitializeInstruction,
-  createUpdateFieldInstruction,
-  createRemoveKeyInstruction,
   pack,
   TokenMetadata,
 } from "@solana/spl-token-metadata";
-
-import dotenv from "dotenv";
-dotenv.config();
+import { getTokenConfig } from "./config";
 
 export async function createMintWithTransferFee(
   connection: Connection,
   mintAuthority: PublicKey,
+  supplyHolder: PublicKey,
   transferFeeConfigAuthority: PublicKey,
   withdrawWithheldAuthority: PublicKey,
   updateMetadataAuthority: PublicKey,
   payer: Keypair, // account that has funds to pay for the transaction
   mintKeypair: Keypair, // mint account, tokens come from here
-  decimals: number,
-  feeBasisPoints: number,
-  maxFee: bigint,
 ): Promise<TransactionSignature> {
 
-  // Metadata to store in Mint Account
+  const {
+    decimals,
+    maxSupply,
+    feeBasisPoints,  
+    maxFee, 
+    name,
+    symbol,
+    uri,
+    additionalMetadata,
+} =  getTokenConfig();
+
+  // Metadata to store in Mint Account 
+  // https://solana.com/developers/guides/token-extensions/metadata-pointer
   const metaData: TokenMetadata = {
     updateAuthority: updateMetadataAuthority,
     mint: mintKeypair.publicKey,
-    name: process.env.TOKEN_NAME || "OPOS",
-    symbol: process.env.TOKEN_SYMBOL || "OPOS",
-    uri: process.env.TOKEN_URI || "https://raw.githubusercontent.com/solana-developers/opos-asset/main/assets/DeveloperPortal/metadata.json",
-    additionalMetadata: [],
+    name,
+    symbol,
+    uri,
+    additionalMetadata,
   };
 
   // Size of MetadataExtension 2 bytes for type, 2 bytes for length
@@ -82,6 +93,7 @@ export async function createMintWithTransferFee(
     maxFee,
     TOKEN_2022_PROGRAM_ID,
   );
+  
 
   const initializeMintInstruction = createInitializeMintInstruction(
     mintKeypair.publicKey,
@@ -109,13 +121,62 @@ export async function createMintWithTransferFee(
     uri: metaData.uri,
   });
 
+  // If we had aditional metada we should add it like this
+  // https://solana.com/developers/guides/token-extensions/metadata-pointer
+  // Instruction to update metadata, adding custom field
+  //const updateFieldInstruction = createUpdateFieldInstruction({
+  //  programId: TOKEN_2022_PROGRAM_ID, // Token Extension Program as Metadata Program
+  //  metadata: mint, // Account address that holds the metadata
+  //  updateAuthority: updateAuthority, // Authority that can update the metadata
+  //  field: metaData.additionalMetadata[0][0], // key
+  //  value: metaData.additionalMetadata[0][1], // value
+  //});
+
+  // Create Associated Token Account instruction (if needed)
+  const associatedTokenAccount = await getAssociatedTokenAddress(
+    mintKeypair.publicKey,
+    supplyHolder,
+    false,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  const createAtaInstruction = createAssociatedTokenAccountInstruction(
+    payer.publicKey,
+    associatedTokenAccount,
+    supplyHolder,
+    mintKeypair.publicKey,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  // Mint the total fixed supply instruction
+  const mintMaxSupplyInstruction = createMintToInstruction(
+    mintKeypair.publicKey,           // mint
+    associatedTokenAccount,          // destination
+    mintAuthority,                   // authority
+    maxSupply,  // amount
+    [],                              // signers //this is empty because the payer is the mintAuthority
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  // Create instruction to remove mint authority
+  const removeMintAuthorityInstruction = createSetAuthorityInstruction(
+    mintKeypair.publicKey,           // mint account
+    mintAuthority,                   // current authority
+    AuthorityType.MintTokens,        // authority type
+    null,                           // new authority (null to remove)
+    [],                             // multi signature
+    TOKEN_2022_PROGRAM_ID
+  );
+
   const mintTransaction = new Transaction().add(
     createAccountInstruction,
     initializeMetadataPointerInstruction,
-    // note: the above instructions are required before initializing the mint
     initializeTransferFeeConfig,
     initializeMintInstruction,
     initializeMetadataInstruction,
+    createAtaInstruction,
+    mintMaxSupplyInstruction,
+    removeMintAuthorityInstruction,
   );
  
   console.log("Sending transaction...");
@@ -126,6 +187,7 @@ export async function createMintWithTransferFee(
     { commitment: "finalized" },
   );
   console.log("Transaction sent");
+
  
   return signature;
 }
