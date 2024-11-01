@@ -1,9 +1,10 @@
 import { airdropIfRequired } from "@solana-developers/helpers";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, sendAndConfirmTransaction, Transaction } from "@solana/web3.js";
 import { getAccountConfig, getNetworkConfig, getTokenConfig } from "./config";
-import { createAccount, TOKEN_2022_PROGRAM_ID, mintTo, transferChecked, getTransferFeeAmount, getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { createAccount, TOKEN_2022_PROGRAM_ID, mintTo, getTransferFeeAmount, getAccount, getAssociatedTokenAddressSync, createAssociatedTokenAccountIdempotent, unpackAccount, createTransferInstruction } from "@solana/spl-token";
 import { transferTokens } from "./transferTokens";
-import { getAccountBalance } from "./helpers";
+import { getTokenAccountBalance, getWithledTransferFees } from "./helpers";
+import { withdrwalAllFees } from "./withdrawFees";
 
 
 // CREATE TEST ACCOUNTS, MINT TOKENS, TRANSFERS THEM AND COLECT FEES
@@ -20,6 +21,8 @@ const {
     transferFeeConfigAuthority,
     withdrawWithheldAuthority,
     updateMetadataAuthority,
+    supplyHolderKeypair,
+    withdrawAuthorityKeypair,
 } = await getAccountConfig();
 
 /**
@@ -42,17 +45,47 @@ if (cluster === "devnet") {
 console.log("Creating source account...");
  
 const mint = mintKeypair.publicKey;
-const sourceKeypair = Keypair.generate();
-const sourceAccount = await createAccount(
+const sourceKeypair = supplyHolderKeypair;
+const sourceAccount = await createAssociatedTokenAccountIdempotent(
   connection,
   payer,
   mint,
   sourceKeypair.publicKey,
-  undefined,
   { commitment: "finalized" },
   TOKEN_2022_PROGRAM_ID,
 );
 console.log(`Source account ${sourceAccount.toBase58()}`);
+const initialSourceBalance = await getTokenAccountBalance(connection, sourceAccount);
+console.log(`Source account Token balance ${initialSourceBalance}`);
+
+// MINT TOKENS
+console.log("Should not mint tokens to source as this tokens has max supply already minted...");
+ 
+const amountToMint = BigInt(10 * 10 ** decimals);
+// change if mint authority is different from the payer
+const mintAuthorityKeypair = payer;
+try {
+    await mintTo(
+    connection,
+    payer,
+    mint,
+    sourceAccount,
+    mintAuthorityKeypair, // mintAuthority
+    amountToMint,
+    [payer],
+    { commitment: "finalized" },
+    TOKEN_2022_PROGRAM_ID,
+    );
+    const sourceBalanceAfterMint = await getTokenAccountBalance(connection, sourceAccount);
+    if (sourceBalanceAfterMint !== amountToMint) {
+        throw new Error(`Expected source balance to be equal to amountToMint`);
+    }
+    throw new Error("Mint is active and it shouldn't")
+} catch (err){
+    console.log("Mint is correctly deactivated\n\n")
+}
+
+
 
 // CREATE DESTINATION ACCOUNT
 console.log("Creating destination account...");
@@ -69,45 +102,24 @@ const destinationAccount = await createAccount(
 );
 console.log(`Destination account ${destinationAccount.toBase58()}`);
 
-// MINT TOKENS
-console.log("Minting 10 tokens to source...\n\n");
- 
-const amountToMint = BigInt(10 * 10 ** decimals);
-// change if mint authority is different from the payer
-const mintAuthorityKeypair = payer;
-await mintTo(
-  connection,
-  payer,
-  mint,
-  sourceAccount,
-  mintAuthorityKeypair, // mintAuthority
-  amountToMint,
-  [payer],
-  { commitment: "finalized" },
-  TOKEN_2022_PROGRAM_ID,
-);
-
-
-const initialSourceBalance = await getAccountBalance(connection, sourceAccount);
-console.log(`Source account Token balance ${initialSourceBalance}`);
-const initialDestinationBalance = await getAccountBalance(connection, destinationAccount);
+const initialDestinationBalance = await getTokenAccountBalance(connection, destinationAccount);
 console.log(`Destination account Token balance ${initialDestinationBalance}`);
 
-if (initialSourceBalance !== amountToMint) {
-    throw new Error(`Expected source balance to be equal to amountToMint`);
-}
-
+// Get Fee Vault
 const feeVaultAccount = getAssociatedTokenAddressSync(
   mint,
-  payer.publicKey,
+  withdrawWithheldAuthority,
   undefined,
   TOKEN_2022_PROGRAM_ID,
 );
-const initialFeeVaultBalance = await getAccountBalance(connection, feeVaultAccount);
+const initialFeeVaultBalance = await getTokenAccountBalance(connection, feeVaultAccount);
+console.log(`Fee Vault ${feeVaultAccount} Balance ${initialFeeVaultBalance}\n\n`)
 
+//*******************/
 // TRANSFER TOKENS
+//*******************/
 const transferAmount = BigInt(1 * 10 ** decimals);
-await transferTokens(
+const transferTransactionSig = await transferTokens(
     connection,
     sourceAccount,
     destinationAccount,
@@ -117,16 +129,24 @@ await transferTokens(
     decimals,
     transferAmount
 );
+console.log(
+  `Transfer successful!\n`,
+  `https://solana.fm/tx/${transferTransactionSig}?cluster=${cluster}-solana \n`
+);
 
-const finalFeeVaultBalance = await getAccountBalance(connection, feeVaultAccount);
-const finalSourceBalance = await getAccountBalance(connection, sourceAccount);
-const finalDestinationBalance = await getAccountBalance(connection, destinationAccount);
+const finalSourceBalance = await getTokenAccountBalance(connection, sourceAccount);
+console.log(`Source account Token balance after transfer ${finalSourceBalance}`);
+const finalDestinationBalance = await getTokenAccountBalance(connection, destinationAccount);
+console.log(`Destination account Token balance after trasnfer ${finalDestinationBalance}`);
 
 // We don't take max fee into acount as it has the max u64 value
 const expectedFee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000);
-const fee = finalFeeVaultBalance - initialFeeVaultBalance;
-if (expectedFee !== fee) {
-    console.error(`Expected fee are ${fee} but should be ${expectedFee}`);
+// Note that the receiver is the one who "pays" for the transfer fee.
+// Witheld amount is not yet in the vault and needs to be harvested from accounts in order to be withdraw
+const withheldFees = await getWithledTransferFees(connection, destinationAccount);
+console.log(`Whitheld Token Fees after transfer ${withheldFees}`)
+if (expectedFee !== withheldFees) {
+    console.error(`Expected withheld fee are ${withheldFees} but should be ${expectedFee}`);
 }
 
 if ((initialSourceBalance - finalSourceBalance) !== transferAmount) {
@@ -134,21 +154,54 @@ if ((initialSourceBalance - finalSourceBalance) !== transferAmount) {
 }
 // Note that the receiver is the one who "pays" for the transfer fee.
 if ((finalDestinationBalance - initialDestinationBalance) !== (transferAmount - expectedFee)) {
-    console.log('initialDestinationBalance', initialDestinationBalance)
-    console.log('finalDestinationBalance', finalDestinationBalance)
-    console.log('transferAmount', transferAmount)
-    console.log('fee', fee)
     throw new Error(`Expected destination balance to be equal to transferAmount - fee`);
 }
 
-// FETCH ACCOUNTS WITH WITHHELD TOKENS
- 
-// WITHDRAW WITHHELD TOKENS
- 
+
+//*******************/
+// FETCH ACCOUNTS AND WITHDRAW WITHHELD TOKENS
+//*******************/
+console.log('\n\n Withdrawing all fees...')
+const withdrawTransactionSig = await withdrwalAllFees(
+  connection,
+  payer,
+  mint,
+  feeVaultAccount,
+  withdrawAuthorityKeypair,
+);
+console.log(
+  `Withdraw all fees successful!\n`,
+  `https://solana.fm/tx/${withdrawTransactionSig}?cluster=${cluster}-solana \n`
+);
+
+const withheldAccountAfterWithdraw = await getAccount(
+  connection,
+  destinationAccount,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
+
+const withheldAmountAfterWithdraw = getTransferFeeAmount(
+  withheldAccountAfterWithdraw,
+);
+
+const feeVaultAfterWithdraw = await getAccount(
+  connection,
+  feeVaultAccount,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
+
+console.log(
+  `Withheld amount after withdraw: ${withheldAmountAfterWithdraw?.withheldAmount}`,
+);
+console.log(
+  `Fee vault balance after withdraw: ${feeVaultAfterWithdraw.amount}\n`,
+);
+   
+  
 // VERIFY UPDATED FEE VAULT BALANCE
- 
-// HARVEST WITHHELD TOKENS TO MINT
- 
-// WITHDRAW HARVESTED TOKENS
- 
-// VERIFY UPDATED FEE VAULT BALANCE
+const finalFeeVaultBalance = await getTokenAccountBalance(connection, feeVaultAccount);
+console.log(`Fee Vault Balance after transfer ${finalFeeVaultBalance}`);
+const fee = finalFeeVaultBalance - initialFeeVaultBalance;
+console.log('Fees withdrawed', fee, '\n\n');
