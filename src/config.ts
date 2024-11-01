@@ -71,14 +71,16 @@ export const getAccountConfig = async () => {
     } else {
         mintKeypair = getKeypairFromEnvironment('MINT_KEYPAIR');
     }
-    console.log("\nmint public key: " + mintKeypair.publicKey.toBase58() + "\n\n");
+    console.log("mint public key: " + mintKeypair.publicKey.toBase58() + "\n");
 
+    // Account that will hold the supply of tokens pre minted
+    const supplyHolder = process.env.SUPPLY_HOLDER ? new PublicKey(process.env.SUPPLY_HOLDER) : payer.publicKey;
+    console.log(`supplyHolder public key: ${supplyHolder.toBase58()}`);
+   
     // We will have an authority account that will be able to update the program, update fees and mint authority
     // MintAuhtority will not actually be used since we will mint max supply and then remove the minter
     const mintAuthority = process.env.MINT_AUTHORITY ? new PublicKey(process.env.MINT_AUTHORITY) : payer.publicKey;
     console.log(`mintAuthority public key: ${mintAuthority.toBase58()}`);
-    const supplyHolder = process.env.SUPPLY_HOLDER ? new PublicKey(process.env.SUPPLY_HOLDER) : payer.publicKey;
-    console.log(`supplyHolder public key: ${supplyHolder.toBase58()}`);
     const transferFeeConfigAuthority = process.env.TRANSFER_FEE_CONFIG_AUTHORITY ? new PublicKey(process.env.TRANSFER_FEE_CONFIG_AUTHORITY) : payer.publicKey;
     console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
     const withdrawWithheldAuthority = process.env.WITHDRAW_AUTHORITY ? new PublicKey(process.env.WITHDRAW_AUTHORITY) : payer.publicKey;
@@ -86,14 +88,23 @@ export const getAccountConfig = async () => {
     const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
     console.log(`withdrawWithheldAuthority public key: ${updateMetadataAuthority.toBase58()}`);
     
+    // Accounts for testing purposes
+    const supplyHolderKeypair: Keypair = process.env.SUPPLY_HOLDER_KEYPAIR ? getKeypairFromEnvironment('SUPPLY_HOLDER_KEYPAIR') : payer;
+    const withdrawAuthorityKeypair: Keypair = process.env.WITHDRAW_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('WITHDRAW_AUTHORITY_KEYPAIR') : payer;
+    
+
+    console.log("\n\n")
     return {
         payer,
         mintKeypair,
-        mintAuthority,
         supplyHolder,
+        mintAuthority,
         transferFeeConfigAuthority,
         withdrawWithheldAuthority,
-        updateMetadataAuthority
+        updateMetadataAuthority,
+        // test accounts
+        supplyHolderKeypair,
+        withdrawAuthorityKeypair,
     };
 }
 

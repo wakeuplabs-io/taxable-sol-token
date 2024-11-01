@@ -47,8 +47,8 @@ const mintTransactionSig = await createMintWithTransferFee(
  
 console.log(
     'Token created!',
-    `https://solana.fm/tx/${mintTransactionSig}?cluster=devnet-solana`
+    `https://solana.fm/tx/${mintTransactionSig}?cluster=${cluster}-solana`
   );
 
 // CREATE FEE VAULT ACCOUNT
-await createFeeVault(connection, payer, mintKeypair)
+await createFeeVault(connection, payer, mintKeypair, withdrawWithheldAuthority)
