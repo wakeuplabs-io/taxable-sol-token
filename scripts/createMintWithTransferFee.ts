@@ -68,13 +68,21 @@ export async function createMintWithTransferFee(
   const metadataExtension = TYPE_SIZE + LENGTH_SIZE;
   // Size of metadata
   const metadataLen = pack(metaData).length;
-
+  // Size of Extensions
   const extensions = [ExtensionType.TransferFeeConfig, ExtensionType.MetadataPointer];
   const mintLen = getMintLen(extensions);
  
+  const totalLen = mintLen + metadataExtension + metadataLen
+  console.log(`Metadata len`, metadataLen, "mintlen", mintLen, "metadataExtension", metadataExtension, "total", totalLen)
   const mintLamports =
-    await connection.getMinimumBalanceForRentExemption(mintLen + metadataExtension + metadataLen);
+    await connection.getMinimumBalanceForRentExemption(totalLen);
  
+  const payerBalance = await connection.getBalance(payer.publicKey);
+  console.log(`Mint lampors for rent exception: ${mintLamports}, Payers balance ${payerBalance}`)
+  if (payerBalance <= mintLamports) {
+    throw new Error("Payer does not have enough Balance");
+  }
+
   console.log("Creating a transaction with transfer fee instruction...");
 
   const createAccountInstruction = SystemProgram.createAccount({
