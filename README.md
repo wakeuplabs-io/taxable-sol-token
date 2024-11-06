@@ -4,6 +4,12 @@
 
 - Install node 18 or above
 - Install Solana <https://solana.com/docs/intro/installation>
+    ATENTION USE ANCHOR 0.30.1 AND SOLANA 1.18.17 OTHERWISE IT WON'T WORK
+
+    ```bash
+    sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.17/install)"
+    ```
+
 - run `npm i`
 
 ## Configuration
