@@ -5,7 +5,8 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-hello_world = "DJi3QRBw25uLHk9XGSi18XyEQoxH37LkTVUjAeG9R8Ad"
+splitter = "BT2b3ou3e3WyhmPXVb4Zok5hPN23uHPSkRfnHcV75MQW"
+tax_manager = "51rtQjgrfJYEQTxuyE7PQQHpGAEyD3pbCyoUtC5Mp2Ur"
 
 [registry]
 url = "https://api.apr.dev"

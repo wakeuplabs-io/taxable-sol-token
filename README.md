@@ -3,14 +3,18 @@
 ## Pre-requisits
 
 - Install node 18 or above
-- Install Solana <https://solana.com/docs/intro/installation>
+- Install Solana, Rust and Anchor follow <https://solana.com/docs/intro/installation>
     ATENTION USE ANCHOR 0.30.1 AND SOLANA 1.18.17 OTHERWISE IT WON'T WORK
 
     ```bash
     sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.17/install)"
     ```
 
-- run `npm i`
+- Install yarn globally
+
+    ```bash
+    npm i yarn -g
+    ```
 
 ## Configuration
 
@@ -24,7 +28,7 @@ Cluster indicates the network where the program is going to run, it can be devne
 After setting up desired token configuration like name, symbol, uri, tax fee, etc into .env we will run:
 
 ```bash
-npm start
+anchor build
 ```
 
 This will deploy our token into Solana the transaction will be printed together with the explorer url on the consol
@@ -33,7 +37,7 @@ A new variable will appear on the .env file called MINT_KEY this is the private 
 If you want to test if everything is working correctly you can use
 
 ```bash
-npm test
+anchor test
 ```
 
 It will create a destination account and will transfer tokens to it, as it checks that source amount, destination amount and fees amount correspond to expected values.
