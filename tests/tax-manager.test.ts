@@ -125,14 +125,14 @@ describe("tax-manager", () => {
 
     // This is how it's updated by a smart contract
     // init contract
-    const txInit = await program.methods
-    .initialize()
-    .accounts({})
-    .signers([payer])
-    .transaction();
+    // const txInit = await program.methods
+    // .initialize()
+    // .accounts({})
+    // .signers([payer])
+    // .transaction();
 
-    const hash = await sendAndConfirmTransaction(program.provider.connection, txInit, [payer]);
-    console.log(`https://explorer.solana.com/tx/${hash}?cluster=devnet`);
+    // const hash = await sendAndConfirmTransaction(program.provider.connection, txInit, [payer]);
+    // console.log(`https://explorer.solana.com/tx/${hash}?cluster=devnet`);
 
     // Change fees through the contract
     const tx = await program.methods

@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-splitter = "6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127"
+ #splitter = "6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127"
 tax_manager = "5QJsy43QNeMtmLfwWn1KD6w5pVEwmPPvuULuMu5q2XWr"
 
 [registry]

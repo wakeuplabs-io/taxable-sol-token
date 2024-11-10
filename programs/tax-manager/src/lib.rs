@@ -10,11 +10,11 @@ declare_id!("5QJsy43QNeMtmLfwWn1KD6w5pVEwmPPvuULuMu5q2XWr");
 pub mod tax_manager {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    // pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
 
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
-    }
+    //     msg!("Greetings from: {:?}", ctx.program_id);
+    //     Ok(())
+    // }
 
     // https://github.com/solana-developers/program-examples/blob/main/tokens/token-2022/transfer-fee/anchor/programs/transfer-fee/src/instructions/update_fee.rs
     // Note that there is a 2 epoch delay from when new fee updates take effect
@@ -66,8 +66,8 @@ pub mod tax_manager {
     }
 }
 
-#[derive(Accounts)]
-pub struct Initialize {}
+// #[derive(Accounts)]
+// pub struct Initialize {}
 
 #[derive(Accounts)]
 pub struct TaxFee<'info> {
@@ -86,7 +86,7 @@ pub struct TaxFee<'info> {
 pub enum TaxManagerError {
     #[msg("Max fee basis points is 300")]
     FeeTooHigh,
-    #[msg("Min fee basis points i 10")]
+    #[msg("Min fee basis points is 100")]
     FeeTooLow,
 
 }
