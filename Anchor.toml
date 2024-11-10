@@ -5,11 +5,11 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-splitter = "BT2b3ou3e3WyhmPXVb4Zok5hPN23uHPSkRfnHcV75MQW"
-tax_manager = "51rtQjgrfJYEQTxuyE7PQQHpGAEyD3pbCyoUtC5Mp2Ur"
+splitter = "6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127"
+tax_manager = "5QJsy43QNeMtmLfwWn1KD6w5pVEwmPPvuULuMu5q2XWr"
 
 [registry]
-url = "https://api.apr.dev"
+url = "https://anchor.projectserum.com"
 
 [provider]
 cluster = "Devnet"

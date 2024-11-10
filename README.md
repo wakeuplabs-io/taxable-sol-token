@@ -3,18 +3,73 @@
 ## Pre-requisits
 
 - Install node 18 or above
-- Install Solana, Rust and Anchor follow <https://solana.com/docs/intro/installation>
-    ATENTION USE ANCHOR 0.30.1 AND SOLANA 1.18.17 OTHERWISE IT WON'T WORK
-
-    ```bash
-    sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.17/install)"
-    ```
-
 - Install yarn globally
 
     ```bash
     npm i yarn -g
     ```
+
+- Install Solana, Rust and Anchor following <https://solana.com/docs/intro/installation>
+    ATENTION USE ANCHOR 0.30.1 AND SOLANA 1.18.26 OTHERWISE IT WON'T WORK
+
+    ```bash
+    sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.17/install)"
+    ```
+
+    IF YOU ARE USING A MAC M1 solana-test-validator WON't WORK
+    In order to run it you will have to built it manually following this steps:
+
+  - Fetch
+    Download the source code
+
+    ```bash
+    git clone https://github.com/solana-labs/solana.git
+    ```
+
+    Install protobuf
+
+    ```bash
+    brew install protobuf
+    ```
+
+  - Build
+
+    ```bash
+    cd solana/validator
+    ```
+
+    in solana/validator
+
+    ```bash
+    echo '#!/usr/bin/env bash
+    here="$(dirname "$0")"
+    set -x
+    exec cargo build --release --manifest-path="$here"/Cargo.toml --bin solana-test-validator -- "$@"' > solana-test-validator
+    ./solana-test-validator
+    ```
+
+- Test
+
+    ```bash
+    cd ../target/release
+    ```
+
+    in solana/target/release
+
+    ```bash
+    ./solana-test-validator
+    ```
+
+- Link
+
+    Since I was using this with the original installed solana tools, I added the path to my shell config (~/.zshrc or ~/.bash_profile on mac). Just make sure that you are able to find the binary or the symlink to it after typing $which solana-test-validator What I added to my .zshrc:
+
+    ```bash
+    export PATH="/Users/lain/git/solana/solana-src/target/release:$PATH"
+    ```
+
+    of course, replace the user.
+
 
 ## Configuration
 

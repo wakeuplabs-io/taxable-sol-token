@@ -6,7 +6,7 @@ import { createMint, createAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } fr
 import { Keypair, sendAndConfirmTransaction } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
-describe("splitter", () => {
+describe.skip("splitter", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);

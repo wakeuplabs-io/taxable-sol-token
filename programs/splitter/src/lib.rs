@@ -1,17 +1,17 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    associated_token::AssociatedToken, 
+    // associated_token::AssociatedToken, 
     token::{
         self,
-        Mint, 
+        // Mint, 
         Token, 
         TokenAccount,
         Transfer as SplTransfer
     }
 };
-use std::mem::size_of;
+// use std::mem::size_of;
 
-declare_id!("BT2b3ou3e3WyhmPXVb4Zok5hPN23uHPSkRfnHcV75MQW");
+declare_id!("6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127");
 
 #[program]
 pub mod splitter {
