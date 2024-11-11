@@ -972,6 +972,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "835a3dc7d1ec9e75e2b5fb4ba75396837112d2060b03f7d43bc1897c7f7211da"
 
 [[package]]
+name = "fee-manager"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2258,14 +2266,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "splitter"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
-]
-
-[[package]]
 name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2309,14 +2309,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.86",
-]
-
-[[package]]
-name = "taxable-manager"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
 ]
 
 [[package]]

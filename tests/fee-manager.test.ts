@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { TaxManager } from "../target/types/tax_manager";
+import { FeeManager } from "../target/types/fee_manager";
 import { assert } from "chai";
 import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeMintInstruction, createInitializeTransferFeeConfigInstruction, getMintLen, createSetTransferFeeInstruction, getTransferFeeConfig, getMint } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
@@ -12,7 +12,7 @@ describe("tax-manager", () => {
   const connection = new Connection(provider.connection.rpcEndpoint, "confirmed");
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.TaxManager as Program<TaxManager>;
+  const program = anchor.workspace.FeeManager as Program<FeeManager>;
   const payer = (provider.wallet as NodeWallet).payer; //payer
 
   it("setTransferFee", async () => {
@@ -27,7 +27,7 @@ describe("tax-manager", () => {
 
 
     const [PDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("fee_authority"), payer.publicKey.toBuffer()],
+      [Buffer.from("pda_authority"), payer.publicKey.toBuffer()],
       program.programId,
     );
 
@@ -148,7 +148,7 @@ describe("tax-manager", () => {
 
 
     const tx = await program.methods
-      .setTransferFee(newFeeBasisPoints)
+      .setFee(newFeeBasisPoints)
       .accounts({
         mint, 
         authority: payer.publicKey,
