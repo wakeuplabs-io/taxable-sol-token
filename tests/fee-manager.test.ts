@@ -6,7 +6,7 @@ import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeMintInstruction, 
 import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
-describe("tax-manager", () => {
+describe("fee-manager", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   const connection = new Connection(provider.connection.rpcEndpoint, "confirmed");

@@ -3,7 +3,10 @@ use anchor_lang::prelude::*;
 mod instructions;
 use instructions::*;
 
-declare_id!("884XXAzvBjkrDUf85Dj47xP7rpdMVg26NYaFt3pbk2Bk");
+mod state;
+
+
+declare_id!("BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ");
 
 #[program]
 pub mod fee_manager {
@@ -27,6 +30,10 @@ pub mod fee_manager {
 
     pub fn set_authority(ctx: Context<ChangeAuthority>, authority_type: u8, new_authority: Option<Pubkey>) -> Result<()> {
         process_set_authority(ctx, authority_type, new_authority)
+    }
+
+    pub fn set_destination(ctx: Context<Destination>) -> Result<()> {
+        process_set_destination(ctx)
     }
 }
 

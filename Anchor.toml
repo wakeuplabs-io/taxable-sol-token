@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-fee_manager = "884XXAzvBjkrDUf85Dj47xP7rpdMVg26NYaFt3pbk2Bk"
+fee_manager = "BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ"
 
 [registry]
 url = "https://anchor.projectserum.com"
