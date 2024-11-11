@@ -5,8 +5,8 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
- #splitter = "6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127"
-tax_manager = "5QJsy43QNeMtmLfwWn1KD6w5pVEwmPPvuULuMu5q2XWr"
+splitter = "2wbVRhDicRfneHAdiyjFk9LCcu5puLDXK9dSU79hCBCs"
+tax_manager = "5UHYvEeGRekbLeXaTKM2x51q976HPN1ACvkvK6TSLDJv"
 
 [registry]
 url = "https://anchor.projectserum.com"

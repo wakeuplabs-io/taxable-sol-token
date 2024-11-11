@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { TaxManager } from "../target/types/tax_manager";
 import { assert } from "chai";
 import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeMintInstruction, createInitializeTransferFeeConfigInstruction, getMintLen, createSetTransferFeeInstruction, getTransferFeeConfig, getMint } from "@solana/spl-token";
-import { Connection, Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
 describe("tax-manager", () => {
@@ -24,8 +24,15 @@ describe("tax-manager", () => {
     const decimals = 2;
     // Authority that can mint new tokens
     const mintAuthority = payer;
+
+
+    const [PDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("fee_authority"), payer.publicKey.toBuffer()],
+      program.programId,
+    );
+
     // Authority that can modify transfer fees
-    const transferFeeConfigAuthority = payer;
+    const transferFeeConfigAuthority = PDA;
     // Authority that can move tokens withheld on mint or token accounts
     const withdrawWithheldAuthority = payer;
     
@@ -52,7 +59,7 @@ describe("tax-manager", () => {
     const initializeTransferFeeConfig =
     createInitializeTransferFeeConfigInstruction(
       mint, // Mint Account address
-      transferFeeConfigAuthority.publicKey, // Authority to update fees
+      transferFeeConfigAuthority, // Authority to update fees
       withdrawWithheldAuthority.publicKey, // Authority to withdraw fees
       feeBasisPoints, // Basis points for transfer fee calculation
       maxFee, // Maximum fee per transfer
@@ -135,15 +142,21 @@ describe("tax-manager", () => {
     // console.log(`https://explorer.solana.com/tx/${hash}?cluster=devnet`);
 
     // Change fees through the contract
+    console.log(`PDA`, PDA.toBase58())
+    console.log(`Program id`, program.programId.toBase58())
+    console.log(`transferFeeConfigAuthority`, transferFeeConfigAuthority.toBase58())
+
+
     const tx = await program.methods
       .setTransferFee(newFeeBasisPoints)
       .accounts({
         mint, 
-        authority:transferFeeConfigAuthority.publicKey
+        authority: payer.publicKey,
+        payer: payer.publicKey,
       })
-      .signers([transferFeeConfigAuthority])
+      .signers([payer]) //Authority signer
       .transaction();
-    const txHash = await sendAndConfirmTransaction(program.provider.connection, tx, [transferFeeConfigAuthority]);
+    const txHash = await sendAndConfirmTransaction(program.provider.connection, tx, [payer]);
     console.log(`https://explorer.solana.com/tx/${txHash}?cluster=devnet`);
 
     const newTokenMintData = await getMint(

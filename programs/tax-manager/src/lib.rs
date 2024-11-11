@@ -4,7 +4,7 @@ use anchor_spl::{
     token_interface::{transfer_fee_set, Mint, Token2022, TransferFeeSetTransferFee},
 };
 
-declare_id!("5QJsy43QNeMtmLfwWn1KD6w5pVEwmPPvuULuMu5q2XWr");
+declare_id!("5UHYvEeGRekbLeXaTKM2x51q976HPN1ACvkvK6TSLDJv");
 
 #[program]
 pub mod tax_manager {
@@ -20,9 +20,8 @@ pub mod tax_manager {
     // Note that there is a 2 epoch delay from when new fee updates take effect
     // This is a safely feature built into the extension
     pub fn set_transfer_fee(ctx: Context<TaxFee>, transfer_fee_basis_points: u16) -> Result<()> {
-        let token_program = &ctx.accounts.token_program;
-        let mint = &ctx.accounts.mint;
-        let authority = &ctx.accounts.authority;
+        //Authority is the PDA
+        let authority = ctx.accounts.authority.to_account_info();
         let maximum_fee: u64 = u64::MAX; // 18_446_744_073_709_551_615u64
 
         // Max tax is 3% (300 basis points)
@@ -30,37 +29,29 @@ pub mod tax_manager {
         // Min tax is 0.1% (10 basis points)
         require!(transfer_fee_basis_points >= 100, TaxManagerError::FeeTooLow);
 
-        // Transfer tokens from taker to initializer
-        // https://docs.rs/anchor-spl/latest/anchor_spl/token_2022_extensions/transfer_fee/struct.TransferFeeSetTransferFee.html
-        let cpi_accounts = TransferFeeSetTransferFee {
-            token_program_id: token_program.to_account_info().clone(),
-            mint: mint.to_account_info().clone(),
-            authority: authority.to_account_info().clone(),
-        };
-        let cpi_program = token_program.to_account_info();
+        // PDA signer seeds
+        let seed = authority.key();
+        let bump_seed = ctx.bumps.fee_authority;
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            b"fee_authority", 
+            seed.as_ref(),
+            &[bump_seed]]];
 
         // Set transfer Fee
         // https://docs.rs/anchor-spl/latest/anchor_spl/token_2022_extensions/transfer_fee/fn.transfer_fee_set.html
         transfer_fee_set(
-            CpiContext::new(cpi_program, cpi_accounts),
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(), 
+                // https://docs.rs/anchor-spl/latest/anchor_spl/token_2022_extensions/transfer_fee/struct.TransferFeeSetTransferFee.html
+                TransferFeeSetTransferFee {
+                    token_program_id: ctx.accounts.token_program.to_account_info(),
+                    mint: ctx.accounts.mint.to_account_info(),
+                    authority: ctx.accounts.fee_authority.to_account_info(),
+                }
+            ).with_signer(signer_seeds), // using PDA to sign,
             transfer_fee_basis_points, 
             maximum_fee
         )?;
-        
-        // transfer_fee_set(
-        //     CpiContext::new(
-        //         ctx.accounts.token_program.to_account_info(),
-        //         TransferFeeSetTransferFee {
-        //             token_program_id: ctx.accounts.mint_account.to_account_info(),
-        //             to: ctx.accounts.associated_token_account.to_account_info(),
-        //             authority: ctx.accounts.mint_account.to_account_info(), // PDA mint authority, required as signer
-        //         },
-        //     )
-        //     .with_signer(signer_seeds), // using PDA to sign
-        //     amount * 10u64.pow(ctx.accounts.mint_account.decimals as u32), // Mint tokens, adjust for decimals
-        // )?;
-        // Ok(())
-
 
         Ok(())
     }
@@ -71,15 +62,25 @@ pub mod tax_manager {
 
 #[derive(Accounts)]
 pub struct TaxFee<'info> {
-    // Mint of token
-    // #[account(
-    //     mint::token_program = token_program
-    // )]
-    #[account(mut)]
-    pub mint: InterfaceAccount<'info, Mint>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    // Mint Authority address is a PDA
+    #[account(
+        mut,
+        seeds = [b"fee_authority", authority.key().as_ref()],
+        bump
+    )]
+    pub fee_authority: SystemAccount<'info>,
+    // Mint of token
+    #[account(
+        mut,
+        mint::token_program = token_program //Check mint is Token2020
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
     pub token_program: Program<'info, Token2022>, //Setted to TOKEN_2022_PROGRAM_ID
+    pub system_program: Program<'info, System>, //Needed for account init_if_needed 
 }
 
 #[error_code]

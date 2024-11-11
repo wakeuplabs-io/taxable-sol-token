@@ -11,7 +11,7 @@ use anchor_spl::{
 };
 // use std::mem::size_of;
 
-declare_id!("6yUSLoaBPHefHWREAt1XpwnayiuehZBvySZpjhY8w127");
+declare_id!("2wbVRhDicRfneHAdiyjFk9LCcu5puLDXK9dSU79hCBCs");
 
 #[program]
 pub mod splitter {
