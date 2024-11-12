@@ -35,5 +35,5 @@ export const getCluster = async (connection: Connection): Promise<string> => {
     cluster = "mainnet-beta";
   else if (cluster === "") 
     throw new Error("Unknow cluster");
-  return cluster
+  return cluster;
 }

@@ -4,18 +4,18 @@
 
 const anchor = require("@coral-xyz/anchor");
 
-import { getAccountConfig } from "../scripts/config"
-import { createMintWithTransferFee } from "../scripts/createMintWithTransferFee";
-import { createFeeVault } from "../scripts/createFeeVault";
-import { getCluster } from "../scripts/helpers";
+import { getAccountConfig } from "../app/config"
+import { createMintWithTransferFee } from "../app/createMintWithTransferFee";
+import { createFeeVault } from "../app/createFeeVault";
+import { getCluster } from "../app/helpers";
 import { airdropIfRequired } from "@solana-developers/helpers";
-import { Cluster, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Cluster, clusterApiUrl, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 module.exports = async function (provider) {
   // Configure client to use the provider.
   anchor.setProvider(provider);
-  const cluster = await getCluster(provider.connection);
-  const connection = new Connection(`https://api.${cluster}.solana.com`);
+  const cluster = await getCluster(provider.connection) as Cluster;
+  const connection = new Connection(provider.connection.rpcEndpoint, "confirmed");
 
   // Add your deploy script here.
   const {
@@ -35,9 +35,9 @@ module.exports = async function (provider) {
 
   // Ask for airdrop if needed on devnet
   console.log(`Cluster: ${cluster}`);
-  if (cluster === "devenet") {
+  if (cluster === "devnet") {
     const newBalance = await airdropIfRequired(
-        provider.connection,
+        connection,
         payer.publicKey,
         0.5 * LAMPORTS_PER_SOL,
         1 * LAMPORTS_PER_SOL,
@@ -47,7 +47,7 @@ module.exports = async function (provider) {
 
   // CREATE MINT WITH TRANSFER FEE
   const mintTransactionSig = await createMintWithTransferFee(
-    provider.connection,
+    connection,
     mintAuthority,
     supplyHolder,
     transferFeeConfigAuthority,
