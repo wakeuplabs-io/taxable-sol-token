@@ -61,6 +61,7 @@ pub fn process_set_destination(ctx: Context<Destination>) -> Result<()> {
     let creator_and_dao = &mut ctx.accounts.creator_and_dao;
     creator_and_dao.creator_token_account = ctx.accounts.creator_token_account.key();
     creator_and_dao.dao_token_account = ctx.accounts.dao_token_account.key();
+    creator_and_dao.mint_account = ctx.accounts.mint_account.key();
 
     Ok(())
 }

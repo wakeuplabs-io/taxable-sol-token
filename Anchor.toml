@@ -4,14 +4,20 @@
 resolution = true
 skip-lint = false
 
+[programs.localnet]
+fee_manager = "BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ"
+
 [programs.devnet]
+fee_manager = "BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ"
+
+[programs.mainnet]
 fee_manager = "BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "Devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

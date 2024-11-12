@@ -6,7 +6,7 @@ import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeMintInstruction, 
 import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
-describe("fee-manager", () => {
+describe("set_fee", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   const connection = new Connection(provider.connection.rpcEndpoint, "confirmed");
@@ -24,6 +24,10 @@ describe("fee-manager", () => {
     const decimals = 2;
     // Authority that can mint new tokens
     const mintAuthority = payer;
+    // Fee basis points for transfers (100 = 1%)
+    const feeBasisPoints = 100;
+    // Maximum fee for transfers in token base units
+    const maxFee = BigInt(100000000);
 
 
     const [PDA] = PublicKey.findProgramAddressSync(
@@ -35,11 +39,6 @@ describe("fee-manager", () => {
     const transferFeeConfigAuthority = PDA;
     // Authority that can move tokens withheld on mint or token accounts
     const withdrawWithheldAuthority = payer;
-    
-    // Fee basis points for transfers (100 = 1%)
-    const feeBasisPoints = 100;
-    // Maximum fee for transfers in token base units
-    const maxFee = BigInt(100000000);
 
     // Size of Mint Account with extensions
     const mintLen = getMintLen([ExtensionType.TransferFeeConfig]);
@@ -101,10 +100,12 @@ describe("fee-manager", () => {
       TOKEN_2022_PROGRAM_ID
     )
     const oldFee = getTransferFeeConfig(oldTokenMintData);
-    console.log("Old fee", oldFee)
+    assert.equal(oldFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
+    assert.equal(oldFee.newerTransferFee.transferFeeBasisPoints, feeBasisPoints);
 
     const newFeeBasisPoints = 200
-    // This is how it's manually updated
+    // /// This is how it's manually updated
+    //    const transferFeeConfigAuthority = payer;
     // const setTransferFeeInstruction = createSetTransferFeeInstruction(
     //   mint,
     //   transferFeeConfigAuthority.publicKey,
@@ -113,12 +114,12 @@ describe("fee-manager", () => {
     //   maxFee,
     //   TOKEN_2022_PROGRAM_ID
     // )
-    // // Add instructions to new transaction
+    // /// Add instructions to new transaction
     // const newTransaction = new Transaction().add(
     //   setTransferFeeInstruction
     // );
 
-    // // Send transaction
+    // /// Send transaction
     // const newTransactionSignature = await sendAndConfirmTransaction(
     //   connection,
     //   newTransaction,
@@ -130,18 +131,9 @@ describe("fee-manager", () => {
     // );
   
 
-    // This is how it's updated by a smart contract
-    // init contract
-    // const txInit = await program.methods
-    // .initialize()
-    // .accounts({})
-    // .signers([payer])
-    // .transaction();
+    /// This is how it's updated by a smart contract
 
-    // const hash = await sendAndConfirmTransaction(program.provider.connection, txInit, [payer]);
-    // console.log(`https://explorer.solana.com/tx/${hash}?cluster=devnet`);
-
-    // Change fees through the contract
+    /// Change fees through the contract
     console.log(`PDA`, PDA.toBase58())
     console.log(`Program id`, program.programId.toBase58())
     console.log(`transferFeeConfigAuthority`, transferFeeConfigAuthority.toBase58())
@@ -159,6 +151,7 @@ describe("fee-manager", () => {
     const txHash = await sendAndConfirmTransaction(program.provider.connection, tx, [payer]);
     console.log(`https://explorer.solana.com/tx/${txHash}?cluster=devnet`);
 
+    console.log('Before getMint finalized')
     const newTokenMintData = await getMint(
       connection, 
       mint, 
@@ -166,7 +159,7 @@ describe("fee-manager", () => {
       TOKEN_2022_PROGRAM_ID
     )
     const newFee = getTransferFeeConfig(newTokenMintData);
-    console.log("New fee", newFee)
+    assert.equal(newFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
     assert.equal(newFee.newerTransferFee.transferFeeBasisPoints, newFeeBasisPoints);
 
   });
