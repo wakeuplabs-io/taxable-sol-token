@@ -7,7 +7,7 @@ import { getTokenAccountBalance, getWithledTransferFees } from "../app/helpers";
 import { withdrwalAllFees } from "../app/withdrawFees";
 
 
-describe.skip("migration", async () => {
+describe.skip("migration test", async () => {
   it("Should MINT TOKENS, TRANSFER THEM AND COLECT FEES", async () => {
     // CREATE TEST ACCOUNTS, MINT TOKENS, TRANSFERS THEM AND COLECT FEES
 
@@ -53,7 +53,7 @@ describe.skip("migration", async () => {
       payer,
       mint,
       sourceKeypair.publicKey,
-      { commitment: "finalized" },
+      { commitment: "confirmed" },
       TOKEN_2022_PROGRAM_ID,
     );
     console.log(`Source account ${sourceAccount.toBase58()}`);
@@ -75,7 +75,7 @@ describe.skip("migration", async () => {
         mintAuthorityKeypair, // mintAuthority
         amountToMint,
         [payer],
-        { commitment: "finalized" },
+        { commitment: "confirmed" },
         TOKEN_2022_PROGRAM_ID,
         );
         const sourceBalanceAfterMint = await getTokenAccountBalance(connection, sourceAccount);
@@ -99,7 +99,7 @@ describe.skip("migration", async () => {
       mint,
       destinationKeypair.publicKey,
       undefined,
-      { commitment: "finalized" },
+      { commitment: "confirmed" },
       TOKEN_2022_PROGRAM_ID,
     );
     console.log(`Destination account ${destinationAccount.toBase58()}`);
