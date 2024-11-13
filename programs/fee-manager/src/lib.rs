@@ -19,8 +19,8 @@ pub mod fee_manager {
         process_init_destination(ctx)
     }
 
-    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
-        process_withdraw(ctx)
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        process_withdraw(ctx, amount)
     }
 
     // Note that there is a 2 epoch delay from when new fee updates take effect

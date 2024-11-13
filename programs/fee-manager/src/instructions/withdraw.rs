@@ -63,10 +63,10 @@ pub struct Withdraw<'info> {
 
 // transfer fees "harvested" to the mint account can then be withdraw by the withdraw authority
 // this transfers fees on the mint account to the specified token account
-pub fn process_withdraw(ctx: Context<Withdraw>) -> Result<()> {
+pub fn process_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     // mint account decimals
     let decimals = ctx.accounts.mint_account.decimals;
-    let amount = ctx.accounts.creator_and_dao_token_account.amount / 2;
+    let splitted_amount = amount / 2;
 
     let seeds = &[
         b"creator_and_dao",
@@ -88,14 +88,6 @@ pub fn process_withdraw(ctx: Context<Withdraw>) -> Result<()> {
         },
         &signer_seeds)
     )?;
-    
-    let seeds = &[
-        b"creator_and_dao",
-        ctx.accounts.authority.to_account_info().key.as_ref(),
-        ctx.accounts.mint_account.to_account_info().key.as_ref(),
-        &[ctx.bumps.creator_and_dao],
-    ];
-    let signer_seeds = [&seeds[..]];
 
     // Transfer to Creator
     transfer_checked(
@@ -109,17 +101,9 @@ pub fn process_withdraw(ctx: Context<Withdraw>) -> Result<()> {
             },
             &signer_seeds,
         ),
-        amount,   // transfer amount
+        splitted_amount,   // transfer amount
         decimals, // decimals
     )?;
-
-    let seeds = &[
-        b"creator_and_dao",
-        ctx.accounts.authority.to_account_info().key.as_ref(),
-        ctx.accounts.mint_account.to_account_info().key.as_ref(),
-        &[ctx.bumps.creator_and_dao],
-    ];
-    let signer_seeds = [&seeds[..]];
 
     // Transfer to DAO
     transfer_checked(
@@ -133,7 +117,7 @@ pub fn process_withdraw(ctx: Context<Withdraw>) -> Result<()> {
             },
             &signer_seeds,
         ),
-        amount,   // transfer amount
+        splitted_amount,   // transfer amount
         decimals, // decimals
     )?;
     

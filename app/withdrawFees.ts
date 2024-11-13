@@ -1,7 +1,7 @@
 import { TOKEN_2022_PROGRAM_ID, unpackAccount, getTransferFeeAmount, withdrawWithheldTokensFromAccounts } from "@solana/spl-token";
 import { Connection, PublicKey, Signer } from "@solana/web3.js";
 
-export const getAccountsWithheldTokens = async (connection: Connection, mint: PublicKey) => {
+export const getAllAccountsWithheldTokens = async (connection: Connection, mint: PublicKey) => {
   // grabs all of the token accounts for a given mint
   const accounts = await connection.getProgramAccounts(TOKEN_2022_PROGRAM_ID, {
     commitment: "confirmed",
@@ -43,7 +43,7 @@ export const withdrwalAllFees = async (
   withdrawWithheldAuthority: Signer,
 
 ) => {
-  const accountsToWithdrawFrom = await getAccountsWithheldTokens(connection, mint);
+  const accountsToWithdrawFrom = await getAllAccountsWithheldTokens(connection, mint);
 
   if (accountsToWithdrawFrom.length === 0) {
     console.log('No accounts to withdraw from: no transfers have been made');
