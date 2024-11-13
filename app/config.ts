@@ -1,4 +1,4 @@
-import { getKeypairFromEnvironment, addKeypairToEnvFile } from "@solana-developers/helpers";
+import { getKeypairFromEnvironment, addKeypairToEnvFile, getKeypairFromFile } from "@solana-developers/helpers";
 import { Cluster, clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -52,14 +52,7 @@ export const getTokenConfig = () => {
 export const getAccountConfig = async () => {
     // Accounts config
     // Account that will deploy the contracts
-    let payer: Keypair;
-    // If account does not exists create it
-    if (!process.env.PRIVATE_KEY) {
-        payer = Keypair.generate();
-        await addKeypairToEnvFile(payer, 'PRIVATE_KEY');
-    } else {
-        payer = getKeypairFromEnvironment('PRIVATE_KEY');
-    }
+    const payer = await getKeypairFromFile('~/.config/solana/id.json');
     console.log(`Payer public key: ${payer.publicKey.toBase58()}`);
 
     // mint account, this will be the token address

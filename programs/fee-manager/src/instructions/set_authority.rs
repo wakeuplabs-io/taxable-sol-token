@@ -2,12 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::{
     //associated_token::AssociatedToken,
     token_2022::{
-        spl_token_2022::instruction::AuthorityType:: {
-            TransferFeeConfig, WithheldWithdraw
-        },
+        spl_token_2022::instruction::AuthorityType,
         SetAuthority
-    }, 
-    token_interface::{set_authority, Mint, Token2022}
+    }, token_interface::{set_authority, Mint, Token2022}
 };
 
 #[derive(Accounts)]
@@ -21,6 +18,15 @@ pub struct ChangeAuthority<'info> {
         bump
     )]
     pub pda_authority: SystemAccount<'info>,
+    /// CHECK: Read only authority
+    pub new_authority: AccountInfo<'info>,
+    // PDA for new authority
+    #[account(
+        mut,
+        seeds = [b"pda_authority", new_authority.key().as_ref()],
+        bump
+    )]
+    pub new_pda_authority: SystemAccount<'info>,
     // Mint of token
     #[account(
         mut,
@@ -32,14 +38,9 @@ pub struct ChangeAuthority<'info> {
     pub token_program: Program<'info, Token2022>, //Setted to TOKEN_2022_PROGRAM_ID
 }
 
-pub fn process_set_authority(ctx: Context<ChangeAuthority>, authority_type: u8, new_authority: Option<Pubkey>) -> Result<()> {
+pub fn process_set_authority(ctx: Context<ChangeAuthority>, authority_type: AuthorityType) -> Result<()> {
     //Authority is the PDA
     let authority = ctx.accounts.authority.to_account_info();
-    let authority_type_enum = match authority_type {
-        4 => TransferFeeConfig,
-        5 => WithheldWithdraw,
-        _ => return Err(SetAuthorityError::OnlyTransferOrWithheld.into())
-    };
 
     // PDA signer seeds
     let seed = authority.key();
@@ -60,8 +61,8 @@ pub fn process_set_authority(ctx: Context<ChangeAuthority>, authority_type: u8, 
                 current_authority: ctx.accounts.pda_authority.to_account_info(),
             }
         ).with_signer(signer_seeds), // using PDA to sign,
-        authority_type_enum, 
-        new_authority
+        authority_type,
+        Some(ctx.accounts.new_pda_authority.key()) // Convert to Option<Pubkey>
     )?;
 
     Ok(())

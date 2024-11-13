@@ -21,8 +21,8 @@ pub struct TaxFee<'info> {
         mint::token_program = token_program //Check mint is Token2020
     )]
     pub mint: InterfaceAccount<'info, Mint>,
-    #[account(mut)]
-    pub payer: Signer<'info>,
+    //#[account(mut)]
+    //pub payer: Signer<'info>,
     pub token_program: Program<'info, Token2022>, //Setted to TOKEN_2022_PROGRAM_ID
 }
 

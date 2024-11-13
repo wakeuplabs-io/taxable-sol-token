@@ -1,4 +1,7 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token_2022::spl_token_2022::instruction::AuthorityType:: {
+            TransferFeeConfig, WithheldWithdraw
+        };
 
 mod instructions;
 use instructions::*;
@@ -12,14 +15,12 @@ declare_id!("BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ");
 pub mod fee_manager {
     use super::*;
 
-    // pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<InitDestination>) -> Result<()> {
+        process_init_destination(ctx)
+    }
 
-    //     msg!("Greetings from: {:?}", ctx.program_id);
-    //     Ok(())
-    // }
-
-    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
-        process_withdraw(ctx)
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        process_withdraw(ctx, amount)
     }
 
     // Note that there is a 2 epoch delay from when new fee updates take effect
@@ -28,11 +29,15 @@ pub mod fee_manager {
         process_set_fee(ctx, transfer_fee_basis_points)
     }
 
-    pub fn set_authority(ctx: Context<ChangeAuthority>, authority_type: u8, new_authority: Option<Pubkey>) -> Result<()> {
-        process_set_authority(ctx, authority_type, new_authority)
+    pub fn set_feeconfig_authority(ctx: Context<ChangeAuthority>) -> Result<()> {
+        process_set_authority(ctx, TransferFeeConfig)
     }
 
-    pub fn set_destination(ctx: Context<Destination>) -> Result<()> {
+    pub fn set_withdraw_authority(ctx: Context<ChangeAuthority>) -> Result<()> {
+        process_set_authority(ctx, WithheldWithdraw)
+    }
+
+    pub fn set_destination(ctx: Context<SetDestination>) -> Result<()> {
         process_set_destination(ctx)
     }
 }

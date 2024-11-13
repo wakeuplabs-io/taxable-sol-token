@@ -1,10 +1,22 @@
-import { getAccount, getTransferFeeAmount, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { getAccount, getMint, getTransferFeeAmount, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { Cluster, Connection, PublicKey } from "@solana/web3.js";
 
 
 export const getTokenAccountBalance = async (connection: Connection, account: PublicKey) => {
-  const tokenAmount = await connection.getTokenAccountBalance(account);
+  const tokenAmount = await connection.getTokenAccountBalance(account, "confirmed");
   return BigInt(tokenAmount.value.amount);
+}
+
+export const getMintWithledTransferFees = async (connection: Connection, mint: PublicKey) => {
+  const withheldFees = getTransferFeeConfig(
+    await getMint(
+        connection, 
+        mint,
+        "confirmed",
+        TOKEN_2022_PROGRAM_ID
+    ),
+  );
+  return withheldFees?.withheldAmount || BigInt(0)
 }
 
 export const getWithledTransferFees = async (connection: Connection, destinationAccount: PublicKey) => {
@@ -12,7 +24,7 @@ export const getWithledTransferFees = async (connection: Connection, destination
     await getAccount(
         connection, 
         destinationAccount,
-        undefined,
+        "confirmed",
         TOKEN_2022_PROGRAM_ID
     ),
   );
