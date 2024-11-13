@@ -120,15 +120,16 @@ pub fn process_withdraw(ctx: Context<Withdraw>) -> Result<()> {
         &[ctx.bumps.creator_and_dao],
     ];
     let signer_seeds = [&seeds[..]];
-     // Transfer to Dao
-     transfer_checked(
+
+    // Transfer to DAO
+    transfer_checked(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             TransferChecked{
                 from: ctx.accounts.creator_and_dao_token_account.to_account_info(),
                 mint: ctx.accounts.mint_account.to_account_info(),
                 to: ctx.accounts.dao_token_account.to_account_info(),
-                authority: ctx.accounts.creator_and_dao_token_account.to_account_info(),
+                authority: ctx.accounts.creator_and_dao.to_account_info(),
             },
             &signer_seeds,
         ),

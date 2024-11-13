@@ -3,7 +3,7 @@ import { Cluster, Connection, PublicKey } from "@solana/web3.js";
 
 
 export const getTokenAccountBalance = async (connection: Connection, account: PublicKey) => {
-  const tokenAmount = await connection.getTokenAccountBalance(account);
+  const tokenAmount = await connection.getTokenAccountBalance(account, "confirmed");
   return BigInt(tokenAmount.value.amount);
 }
 
@@ -12,7 +12,7 @@ export const getWithledTransferFees = async (connection: Connection, destination
     await getAccount(
         connection, 
         destinationAccount,
-        undefined,
+        "confirmed",
         TOKEN_2022_PROGRAM_ID
     ),
   );

@@ -39,6 +39,8 @@ describe("set_fee", () => {
   // Authority that can move tokens withheld on mint or token accounts
   const withdrawWithheldAuthority = payer;
 
+  const newAuthority = Keypair.generate();
+
   before(async () => {
     // Size of Mint Account with extensions
     const mintLen = getMintLen([ExtensionType.TransferFeeConfig]);
@@ -87,11 +89,10 @@ describe("set_fee", () => {
       transaction,
       [payer, mintKeypair], // Signers
     );
-
-    console.log("Create Mint Account:", mint.toBase58());
+    // End Before
   })
 
-  it("setTransferFee", async () => {
+  it("Should set Transfer Fee", async () => {
     // Arrenge
     const oldTokenMintData = await getMint(
       connection, 
@@ -142,8 +143,73 @@ describe("set_fee", () => {
       .signers([payer]) //Authority signer
       .rpc();
     await confirmTransaction(program.provider.connection, tx);
+    
+    // Assert
+    const newTokenMintData = await getMint(
+      connection, 
+      mint, 
+      "confirmed", 
+      TOKEN_2022_PROGRAM_ID
+    )
+    const newFee = getTransferFeeConfig(newTokenMintData);
+    
+    assert.equal(newFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
+    assert.equal(newFee.newerTransferFee.transferFeeBasisPoints, newFeeBasisPoints);
 
+  });
 
+  it("Should change Transfer Fee Authority", async () => {
+    // Act
+    const tx = await program.methods
+      .setFeeconfigAuthority()
+      .accounts({
+        mint, 
+        authority: payer.publicKey,
+        newAuthority: newAuthority.publicKey,
+      })
+      .signers([payer]) //Authority signer
+      .rpc();
+    await confirmTransaction(program.provider.connection, tx);
+  });
+
+  it("Should failt setFee if not Transfer Fee Authority", async () => {
+    // If previous test fail this will fail as well
+    const newFeeBasisPoints = 300
+
+    try {
+      // Act
+      const tx = await program.methods
+        .setFee(newFeeBasisPoints)
+        .accounts({
+          mint, 
+          authority: payer.publicKey,
+        })
+        .signers([payer]) //Authority signer
+        .rpc();
+      await confirmTransaction(program.provider.connection, tx);
+      assert.fail("Should not change the fee if not fee authority")
+    } catch(err) {
+      assert.include(err.transactionMessage, 'Transaction simulation failed')
+      assert.includeMembers(err.transactionLogs, ['Program log: Error: owner does not match'])
+    }
+  });
+
+  it("Should  setFee with new Transfer Fee Authority", async () => {
+    // If previous test fail this will fail as well
+    const newFeeBasisPoints = 300
+
+    // Act
+    const tx = await program.methods
+      .setFee(newFeeBasisPoints)
+      .accounts({
+        mint, 
+        authority: newAuthority.publicKey,
+      })
+      .signers([newAuthority]) //Authority signer
+      .rpc();
+    await confirmTransaction(program.provider.connection, tx);
+
+    // Assert
     const newTokenMintData = await getMint(
       connection, 
       mint, 
@@ -152,9 +218,8 @@ describe("set_fee", () => {
     )
     const newFee = getTransferFeeConfig(newTokenMintData);
 
-    // Assert
-    assert.equal(newFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
     assert.equal(newFee.newerTransferFee.transferFeeBasisPoints, newFeeBasisPoints);
 
   });
+  // End describe
 });
