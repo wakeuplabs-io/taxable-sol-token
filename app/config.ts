@@ -79,8 +79,6 @@ export const getAccountConfig = async () => {
     console.log(`mintAuthority public key: ${mintAuthority.toBase58()}`);
     const transferFeeConfigAuthority = process.env.TRANSFER_FEE_CONFIG_AUTHORITY ? new PublicKey(process.env.TRANSFER_FEE_CONFIG_AUTHORITY) : payer.publicKey;
     console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
-    const withdrawWithheldAuthority = process.env.WITHDRAW_AUTHORITY ? new PublicKey(process.env.WITHDRAW_AUTHORITY) : payer.publicKey;
-    console.log(`withdrawWithheldAuthority public key: ${withdrawWithheldAuthority.toBase58()}`);
     const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
     console.log(`updateMetadataAuthority public key: ${updateMetadataAuthority.toBase58()}`);
 
@@ -89,13 +87,13 @@ export const getAccountConfig = async () => {
     console.log(`dao public key: ${dao.toBase58()}`);
     const creator = process.env.CREATOR ? new PublicKey(process.env.CREATOR) : payer.publicKey;
     console.log(`creator public key: ${creator.toBase58()}`);
-    const feeManagerKeyPair = process.env.FEE_MANAGER_KEYPAIR ? new PublicKey(process.env.FEE_MANAGER_KEYPAIR) : payer.publicKey;
-    console.log(`creator public key: ${feeManagerKeyPair.toBase58()}`);
     
 
     // Accounts for testing purposes
     const supplyHolderKeypair: Keypair = process.env.SUPPLY_HOLDER_KEYPAIR ? getKeypairFromEnvironment('SUPPLY_HOLDER_KEYPAIR') : payer;
+    console.log(`supplyHolderKeypair public key: ${supplyHolderKeypair.publicKey.toBase58()}`);
     const withdrawAuthorityKeypair: Keypair = process.env.WITHDRAW_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('WITHDRAW_AUTHORITY_KEYPAIR') : payer;
+    console.log(`withdrawAuthorityKeypair public key: ${withdrawAuthorityKeypair.publicKey.toBase58()}`);
     
 
     console.log("\n\n")
@@ -106,12 +104,10 @@ export const getAccountConfig = async () => {
         supplyHolder,
         mintAuthority,
         transferFeeConfigAuthority,
-        withdrawWithheldAuthority,
         updateMetadataAuthority,
         //fee manager
         dao,
         creator,
-        feeManagerKeyPair,
         // test accounts
         supplyHolderKeypair,
         withdrawAuthorityKeypair,

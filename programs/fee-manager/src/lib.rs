@@ -6,7 +6,7 @@ use instructions::*;
 mod state;
 
 
-declare_id!("BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ");
+declare_id!("6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG");
 
 #[program]
 pub mod fee_manager {

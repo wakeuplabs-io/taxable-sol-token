@@ -72,10 +72,10 @@
 
 ## Configuration
 
-You can set custom configuration using environmental variables or creating a .env file following .env.example
+You can set custom configuration using environmental variables or creating a `.env` file following `.env.example`
 If variables are not declare default values can be found in src/config.ts
-If not found PRIVATE_KEY will be generated.
-Cluster indicates the network where the program is going to run, it can be devnet, testnet or mainnet-beta. If devnet PRIVATE_KEY will receive an airdrop in order to run it, if it's another network make sure to set the private key and fund it before running the scripts.
+
+Cluster indicates the network where the program is going to run, it can be devnet, testnet or mainnet-beta.
 
 ## Build
 
@@ -96,6 +96,13 @@ Set solana to use localhost
 ```bash
 solana config set --url localhost
 
+```
+
+Go to `Anchor.toml` and modify the cluster to use localnet
+
+```toml
+[provider]
+cluster = "localnet"
 ```
 
 ### Run
@@ -120,12 +127,17 @@ If you are running on a Mac M1, remember that you'll need to re build solana-tes
 ### Config the network
 
 Before deploying, we need to configure the network that we are going to deploy to.
+
+```bash
+solana config set --url devnet
+
+```
+
 Go to `Anchor.toml` and modify the cluster for the desired network to deploy
 
 ```toml
 [provider]
-cluster = "localnet"
-wallet = "~/.config/solana/id.json"
+cluster = "devnet"
 ```
 
 It can be  localnet, devnet, testnet or mainnet.
@@ -138,13 +150,18 @@ First we will deploy the `fee-manager` contract that will be used as the Authori
 anchor deploy
 ```
 
-Then we deploy and config our token into Solana the transaction will be printed together with the explorer url on the console
+When the deploy is done, it will create a `target` folder that contains the compiled program, idl and types.
+Be aware that `target` folder is regenerated every time we run the deploy, and it gets deleted if we run anchor clean, so we recommend backing it up when deploying the final version.
+
+After the fee-manager we are going to deploy and config our spl token into Solana using anchor mirate, the transaction will be printed together with the explorer url on the console
 
 ```bash
 anchor migrate
 ```
 
-A new variable will appear on the .env file called MINT_KEY this is the private key of the generated SPL TOKEN keep it safe.
+A new variable will appear on the .env file called `MINT_KEY` this is the private key of the generated SPL TOKEN.
+
+If you want to re run the mifration you need to delete `MINT_KEY`
 
 ## Scripts
 
