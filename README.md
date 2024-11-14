@@ -224,3 +224,15 @@ yarn transfer
 ```bash
 yarn withdraw
 ```
+
+### Set Fees
+
+```bash
+yarn set-fee
+```
+
+### Set DAO and Creator to withdraw fees
+
+```bash
+yarn set-destination
+```

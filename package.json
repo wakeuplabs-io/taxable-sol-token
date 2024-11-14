@@ -14,9 +14,11 @@
     "test": "anchor test",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-    "token-info": "esrun ./app/scripts/getTokenInformation.ts",
+    "token-info": "esrun ./app/scripts/getTokenInfo.ts",
     "transfer": "esrun ./app/scripts/transferTokens.ts",
-    "withdraw": "esrun ./app/scripts/withdrawFees.ts"
+    "withdraw": "esrun ./app/scripts/withdrawFees.ts",
+    "set-fee": "esrun ./app/scripts/setFee.ts",
+    "set-destination": "esrun ./app/scripts/setDestination.ts"
   },
   "keywords": [
     "solana",

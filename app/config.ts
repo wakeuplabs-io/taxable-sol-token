@@ -7,6 +7,8 @@ dotenv.config();
 import {FeeManager} from "./src/idl/fee_manager";
 import idl from "./src/idl/fee_manager.json";
 
+export const FEE_MANAGER_PROGRAM_ID = new PublicKey(idl.address);
+
 export function toCluster(clusterString: string): Cluster {
     if (clusterString === "mainnet-beta" || 
         clusterString === "devnet" || 
@@ -101,8 +103,6 @@ export const getAccountConfig = async () => {
     // MintAuhtority will not actually be used since we will mint max supply and then remove the minter
     const mintAuthority = process.env.MINT_AUTHORITY ? new PublicKey(process.env.MINT_AUTHORITY) : payer.publicKey;
     console.log(`mintAuthority public key: ${mintAuthority.toBase58()}`);
-    const transferFeeConfigAuthority = process.env.TRANSFER_FEE_CONFIG_AUTHORITY ? new PublicKey(process.env.TRANSFER_FEE_CONFIG_AUTHORITY) : payer.publicKey;
-    console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
     const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
     console.log(`updateMetadataAuthority public key: ${updateMetadataAuthority.toBase58()}`);
 
@@ -118,6 +118,9 @@ export const getAccountConfig = async () => {
     console.log(`supplyHolderKeypair public key: ${supplyHolderKeypair.publicKey.toBase58()}`);
     const withdrawAuthorityKeypair: Keypair = process.env.WITHDRAW_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('WITHDRAW_AUTHORITY_KEYPAIR') : payer;
     console.log(`withdrawAuthorityKeypair public key: ${withdrawAuthorityKeypair.publicKey.toBase58()}`);
+    const transferFeeConfigKeypair = process.env.TRANSFER_FEE_CONFIG_KEYPAIR ? getKeypairFromEnvironment('TRANSFER_FEE_CONFIG_KEYPAIR') : payer;
+    const transferFeeConfigAuthority = transferFeeConfigKeypair.publicKey;
+    console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
     
 
     console.log("\n\n")
@@ -136,6 +139,7 @@ export const getAccountConfig = async () => {
         // test accounts
         supplyHolderKeypair,
         withdrawAuthorityKeypair,
+        transferFeeConfigKeypair
     };
 }
 

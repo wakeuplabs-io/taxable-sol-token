@@ -1,6 +1,7 @@
 import { createAssociatedTokenAccountIdempotent, getAccount, getMint, getTransferFeeAmount, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { Cluster, Connection, PublicKey, Signer } from "@solana/web3.js";
-import { getFeeManagerProgram } from "../config";
+import { FEE_MANAGER_PROGRAM_ID } from "../config";
+
 
 export const getOrCreateATA = async (connection: Connection, payer: Signer, mint: PublicKey, owner: PublicKey) => {
   // Account CANT BE A PDA
@@ -18,26 +19,44 @@ export const getOrCreateATA = async (connection: Connection, payer: Signer, mint
 
 
 export const getFeeConfigPdaAuthority = async (authority: PublicKey) => { 
-  const {program} = await getFeeManagerProgram();
   const [PDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("pda_authority"), authority.toBuffer()],
-    program.programId,
+    FEE_MANAGER_PROGRAM_ID,
   );
   return PDA;
 }
 
 export const getWithdrawPdaAuthority = async (authority: PublicKey, mint: PublicKey) => { 
-  const {program} = await getFeeManagerProgram();
   const [PDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("creator_and_dao"), authority.toBuffer(), mint.toBuffer()],
-    program.programId,
+    FEE_MANAGER_PROGRAM_ID,
   );
   return PDA;
 }
 
+export const geCreatorAndDaoPDA = async (authority: PublicKey, mint: PublicKey) => { 
+  // Get creatorAndDao PDA
+  const [PDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("creator_and_dao"), authority.toBuffer(), mint.toBuffer()],
+    FEE_MANAGER_PROGRAM_ID,
+  );
+  return PDA;
+}
+
+
+
 export const getTokenAccountBalance = async (connection: Connection, account: PublicKey) => {
   const tokenAmount = await connection.getTokenAccountBalance(account, "confirmed");
   return BigInt(tokenAmount.value.amount);
+}
+
+export const getTokenAccountInfo = async (connection: Connection, account: PublicKey) => {
+  return getAccount(
+    connection, 
+    account,
+    "confirmed",
+    TOKEN_2022_PROGRAM_ID
+  );
 }
 
 export const getMintInfo = async (connection: Connection, mint: PublicKey) => {

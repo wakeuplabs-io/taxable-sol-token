@@ -6,7 +6,6 @@ const anchor = require("@coral-xyz/anchor");
 
 import { getAccountConfig } from "../app/config"
 import { createMintWithTransferFee } from "../app/src/createMintWithTransferFee";
-import { createFeeVault } from "../app/src/createFeeVault";
 import { getCluster, getFeeConfigPdaAuthority, getWithdrawPdaAuthority } from "../app/src/helpers";
 import { airdropIfRequired } from "@solana-developers/helpers";
 import { Cluster, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -72,7 +71,7 @@ module.exports = async function (provider) {
   // await createFeeVault(connection, payer, mintKeypair, withdrawPdaAuthority)
 
   // CREATE FEE MANAGER
-  const initFeeManagertx = await createFeeManager(
+  const initFeeManagerTx = await createFeeManager(
     connection,
     mintKeypair.publicKey,
     withdrawAuthorityKeypair,
@@ -84,6 +83,6 @@ module.exports = async function (provider) {
 
   console.log(
     'Init Fee Manager!',
-    `https://solana.fm/tx/${initFeeManagertx}?cluster=${cluster}-solana`
+    `https://solana.fm/tx/${initFeeManagerTx}?cluster=${cluster}-solana`
   );
 };

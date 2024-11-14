@@ -6,7 +6,7 @@ import { transferTokens } from "../src/transferTokens";
 const DESTINATION = "ziKwjx7vov5s9dym7s6TqvNfhpEdXq7oFwJzh85Y7ZB";
 const AMOUNT = 1;
 
-const transferToken = async (destinationAddres: string, amount: number) => {
+const transferTokenScript = async (destinationAddres: string, amount: number) => {
     const {cluster, connection} = getNetworkConfig();
     const {payer, mint, supplyHolderKeypair} = await getAccountConfig();
 
@@ -50,4 +50,4 @@ const transferToken = async (destinationAddres: string, amount: number) => {
 
 }
 
-transferToken(DESTINATION, AMOUNT);
+transferTokenScript(DESTINATION, AMOUNT);
