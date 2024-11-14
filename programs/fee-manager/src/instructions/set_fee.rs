@@ -38,7 +38,7 @@ pub fn process_set_fee(ctx: Context<TaxFee>, transfer_fee_basis_points: u16) -> 
     // Max tax is 3% (300 basis points)
     require!(transfer_fee_basis_points <= 300, SetFeeError::FeeTooHigh);
     // Min tax is 0.1% (10 basis points)
-    require!(transfer_fee_basis_points >= 100, SetFeeError::FeeTooLow);
+    require!(transfer_fee_basis_points >= 10, SetFeeError::FeeTooLow);
 
     // PDA signer seeds
     let seed = authority.key();
@@ -71,7 +71,7 @@ pub fn process_set_fee(ctx: Context<TaxFee>, transfer_fee_basis_points: u16) -> 
 pub enum SetFeeError {
     #[msg("Max fee basis points is 300")]
     FeeTooHigh,
-    #[msg("Min fee basis points is 100")]
+    #[msg("Min fee basis points is 10")]
     FeeTooLow,
 
 }
