@@ -73,5 +73,4 @@ pub enum SetFeeError {
     FeeTooHigh,
     #[msg("Min fee basis points is 10")]
     FeeTooLow,
-
 }

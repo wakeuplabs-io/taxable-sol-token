@@ -1,10 +1,13 @@
+import anchor, { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
 import { getKeypairFromEnvironment, addKeypairToEnvFile, getKeypairFromFile } from "@solana-developers/helpers";
 import { Cluster, clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
-import feeManager from "../target/idl/fee_manager.json";
+import {FeeManager} from "./src/idl/fee_manager";
+import idl from "./src/idl/fee_manager.json";
 
-export const FEE_MANAGER_PROGRAM_ID = new PublicKey(feeManager.address);
+export const FEE_MANAGER_PROGRAM_ID = new PublicKey(idl.address);
 
 export function toCluster(clusterString: string): Cluster {
     if (clusterString === "mainnet-beta" || 
@@ -22,9 +25,31 @@ export const getNetworkConfig = () => {
 
     return {
         cluster,
-        connection,
+        connection
     }
 }
+
+export const getFeeManagerProgram = async() => {    // Get Program
+    const networkConfig = getNetworkConfig();
+    const accountConfig = await getAccountConfig()
+
+    const wallet = new Wallet(accountConfig.payer)
+    // set the local provider
+    const provider = new AnchorProvider(networkConfig.connection, wallet, {
+        commitment: "confirmed",
+    });
+    anchor.setProvider(provider) 
+    const program = new Program(idl as FeeManager);
+
+    return {
+        wallet,
+        provider,
+        program,
+        ...networkConfig,
+        ...accountConfig,
+    }
+}
+
 export const getTokenConfig = () => {
     // Token Config
     const decimals = Number(process.env.DECIMALS || 8);
@@ -67,7 +92,8 @@ export const getAccountConfig = async () => {
     } else {
         mintKeypair = getKeypairFromEnvironment('MINT_KEYPAIR');
     }
-    console.log("mint public key: " + mintKeypair.publicKey.toBase58() + "\n");
+    const mint =  mintKeypair.publicKey;
+    console.log("mint public key: " + mint.toBase58() + "\n");
 
     // Account that will hold the supply of tokens pre minted
     const supplyHolder = process.env.SUPPLY_HOLDER ? new PublicKey(process.env.SUPPLY_HOLDER) : payer.publicKey;
@@ -77,8 +103,6 @@ export const getAccountConfig = async () => {
     // MintAuhtority will not actually be used since we will mint max supply and then remove the minter
     const mintAuthority = process.env.MINT_AUTHORITY ? new PublicKey(process.env.MINT_AUTHORITY) : payer.publicKey;
     console.log(`mintAuthority public key: ${mintAuthority.toBase58()}`);
-    const transferFeeConfigAuthority = process.env.TRANSFER_FEE_CONFIG_AUTHORITY ? new PublicKey(process.env.TRANSFER_FEE_CONFIG_AUTHORITY) : payer.publicKey;
-    console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
     const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
     console.log(`updateMetadataAuthority public key: ${updateMetadataAuthority.toBase58()}`);
 
@@ -94,6 +118,9 @@ export const getAccountConfig = async () => {
     console.log(`supplyHolderKeypair public key: ${supplyHolderKeypair.publicKey.toBase58()}`);
     const withdrawAuthorityKeypair: Keypair = process.env.WITHDRAW_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('WITHDRAW_AUTHORITY_KEYPAIR') : payer;
     console.log(`withdrawAuthorityKeypair public key: ${withdrawAuthorityKeypair.publicKey.toBase58()}`);
+    const transferFeeConfigKeypair = process.env.TRANSFER_FEE_CONFIG_KEYPAIR ? getKeypairFromEnvironment('TRANSFER_FEE_CONFIG_KEYPAIR') : payer;
+    const transferFeeConfigAuthority = transferFeeConfigKeypair.publicKey;
+    console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
     
 
     console.log("\n\n")
@@ -101,6 +128,7 @@ export const getAccountConfig = async () => {
         payer,
         //token
         mintKeypair,
+        mint,
         supplyHolder,
         mintAuthority,
         transferFeeConfigAuthority,
@@ -111,6 +139,7 @@ export const getAccountConfig = async () => {
         // test accounts
         supplyHolderKeypair,
         withdrawAuthorityKeypair,
+        transferFeeConfigKeypair
     };
 }
 

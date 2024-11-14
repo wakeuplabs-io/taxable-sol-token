@@ -29,7 +29,7 @@ import {
   pack,
   TokenMetadata,
 } from "@solana/spl-token-metadata";
-import { getTokenConfig } from "./config";
+import { getTokenConfig } from "../config";
 
 export async function createMintWithTransferFee(
   connection: Connection,

@@ -4,8 +4,8 @@ import { Connection, PublicKey, Keypair, TransactionSignature } from "@solana/we
 // TRANSFER TOKENS 
 export async function transferTokens(
     connection: Connection,
-    sourceAccount: PublicKey,
-    destinationAccount: PublicKey,
+    sourceATA: PublicKey,
+    destinationATA: PublicKey,
     mint: PublicKey, // mint account, tokens come from here
     sourceKeypair: Keypair,
     payer: Keypair, // account that has funds to pay for the transaction
@@ -17,9 +17,9 @@ export async function transferTokens(
     const transferSignature = await transferChecked(
         connection,
         payer,
-        sourceAccount,
+        sourceATA,
         mint,
-        destinationAccount,
+        destinationATA,
         sourceKeypair,
         transferAmount,
         decimals, // Can also be gotten by getting the mint account details with `getMint(...)`
@@ -31,14 +31,14 @@ export async function transferTokens(
 
     const sourceAccountAfterTransfer = await getAccount(
         connection,
-        sourceAccount,
+        sourceATA,
         undefined,
         TOKEN_2022_PROGRAM_ID,
     );
     
     const destinationAccountAfterTransfer = await getAccount(
         connection,
-        destinationAccount,
+        destinationATA,
         undefined,
         TOKEN_2022_PROGRAM_ID,
     );
@@ -48,9 +48,9 @@ export async function transferTokens(
         destinationAccountAfterTransfer,
     );
     
-    console.log(`Source ${sourceAccount.toBase58()} Token Balance: ${sourceAccountAfterTransfer.amount}`);
+    console.log(`Source ${sourceATA.toBase58()} Token Balance: ${sourceAccountAfterTransfer.amount}`);
     console.log(
-        `Destination ${destinationAccount.toBase58()} Token Balance: ${destinationAccountAfterTransfer.amount}`,
+        `Destination ${destinationATA.toBase58()} Token Balance: ${destinationAccountAfterTransfer.amount}`,
     );
     console.log(
         `Withheld Transfer Fees: ${withheldAmountAfterTransfer?.withheldAmount}\n`,

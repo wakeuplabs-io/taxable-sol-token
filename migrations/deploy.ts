@@ -5,12 +5,11 @@
 const anchor = require("@coral-xyz/anchor");
 
 import { getAccountConfig } from "../app/config"
-import { createMintWithTransferFee } from "../app/createMintWithTransferFee";
-import { createFeeVault } from "../app/createFeeVault";
-import { getCluster, getFeeConfigPdaAuthority, getWithdrawPdaAuthority } from "../app/helpers";
+import { createMintWithTransferFee } from "../app/src/createMintWithTransferFee";
+import { getCluster, getFeeConfigPdaAuthority, getWithdrawPdaAuthority } from "../app/src/helpers";
 import { airdropIfRequired } from "@solana-developers/helpers";
 import { Cluster, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { createFeeManager } from "../app/createFeeManager";
+import { createFeeManager } from "../app/src/createFeeManager";
 
 module.exports = async function (provider) {
   // Configure client to use the provider.
@@ -47,8 +46,8 @@ module.exports = async function (provider) {
       );
       console.log(`Payer balance: ${newBalance}`);
   }
-  const feeConfigPdaAuthority = getFeeConfigPdaAuthority(transferFeeConfigAuthority);
-  const withdrawPdaAuthority = getWithdrawPdaAuthority(withdrawAuthorityKeypair.publicKey, mintKeypair.publicKey);
+  const feeConfigPdaAuthority = await getFeeConfigPdaAuthority(transferFeeConfigAuthority);
+  const withdrawPdaAuthority = await getWithdrawPdaAuthority(withdrawAuthorityKeypair.publicKey, mintKeypair.publicKey);
 
   // CREATE MINT WITH TRANSFER FEE
   const mintTransactionSig = await createMintWithTransferFee(
@@ -72,7 +71,7 @@ module.exports = async function (provider) {
   // await createFeeVault(connection, payer, mintKeypair, withdrawPdaAuthority)
 
   // CREATE FEE MANAGER
-  const initFeeManagertx = await createFeeManager(
+  const initFeeManagerTx = await createFeeManager(
     connection,
     mintKeypair.publicKey,
     withdrawAuthorityKeypair,
@@ -84,6 +83,6 @@ module.exports = async function (provider) {
 
   console.log(
     'Init Fee Manager!',
-    `https://solana.fm/tx/${initFeeManagertx}?cluster=${cluster}-solana`
+    `https://solana.fm/tx/${initFeeManagerTx}?cluster=${cluster}-solana`
   );
 };

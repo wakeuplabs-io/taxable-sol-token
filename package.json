@@ -8,9 +8,17 @@
     "build": "anchor build",
     "deploy": "anchor deploy",
     "migrate": "anchor migrate",
+    "copy-idl": "mkdir -p app/src/idl && cp target/idl/fee_manager.json app/src/idl/fee_manager.json",
+    "publish:idl": "anchor idl init 6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG -f target/idl/fee_manager.json",
+    "publish:code": "anchor publish fee_manager",
     "test": "anchor test",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "token-info": "esrun ./app/scripts/getTokenInfo.ts",
+    "transfer": "esrun ./app/scripts/transferTokens.ts",
+    "withdraw": "esrun ./app/scripts/withdrawFees.ts",
+    "set-fee": "esrun ./app/scripts/setFee.ts",
+    "set-destination": "esrun ./app/scripts/setDestination.ts"
   },
   "keywords": [
     "solana",
