@@ -2,8 +2,11 @@ import { getKeypairFromEnvironment, addKeypairToEnvFile, getKeypairFromFile } fr
 import { Cluster, clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
 import dotenv from "dotenv";
 dotenv.config();
+import feeManager from "../target/idl/fee_manager.json";
 
-function toCluster(clusterString: string): Cluster {
+export const FEE_MANAGER_PROGRAM_ID = new PublicKey(feeManager.address);
+
+export function toCluster(clusterString: string): Cluster {
     if (clusterString === "mainnet-beta" || 
         clusterString === "devnet" || 
         clusterString === "testnet") {
@@ -79,8 +82,17 @@ export const getAccountConfig = async () => {
     const withdrawWithheldAuthority = process.env.WITHDRAW_AUTHORITY ? new PublicKey(process.env.WITHDRAW_AUTHORITY) : payer.publicKey;
     console.log(`withdrawWithheldAuthority public key: ${withdrawWithheldAuthority.toBase58()}`);
     const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
-    console.log(`withdrawWithheldAuthority public key: ${updateMetadataAuthority.toBase58()}`);
+    console.log(`updateMetadataAuthority public key: ${updateMetadataAuthority.toBase58()}`);
+
+    // Fee Manager
+    const dao = process.env.DAO ? new PublicKey(process.env.DAO) : payer.publicKey;
+    console.log(`dao public key: ${dao.toBase58()}`);
+    const creator = process.env.CREATOR ? new PublicKey(process.env.CREATOR) : payer.publicKey;
+    console.log(`creator public key: ${creator.toBase58()}`);
+    const feeManagerKeyPair = process.env.FEE_MANAGER_KEYPAIR ? new PublicKey(process.env.FEE_MANAGER_KEYPAIR) : payer.publicKey;
+    console.log(`creator public key: ${feeManagerKeyPair.toBase58()}`);
     
+
     // Accounts for testing purposes
     const supplyHolderKeypair: Keypair = process.env.SUPPLY_HOLDER_KEYPAIR ? getKeypairFromEnvironment('SUPPLY_HOLDER_KEYPAIR') : payer;
     const withdrawAuthorityKeypair: Keypair = process.env.WITHDRAW_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('WITHDRAW_AUTHORITY_KEYPAIR') : payer;
@@ -89,12 +101,17 @@ export const getAccountConfig = async () => {
     console.log("\n\n")
     return {
         payer,
+        //token
         mintKeypair,
         supplyHolder,
         mintAuthority,
         transferFeeConfigAuthority,
         withdrawWithheldAuthority,
         updateMetadataAuthority,
+        //fee manager
+        dao,
+        creator,
+        feeManagerKeyPair,
         // test accounts
         supplyHolderKeypair,
         withdrawAuthorityKeypair,

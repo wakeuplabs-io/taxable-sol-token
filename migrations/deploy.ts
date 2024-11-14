@@ -7,9 +7,9 @@ const anchor = require("@coral-xyz/anchor");
 import { getAccountConfig } from "../app/config"
 import { createMintWithTransferFee } from "../app/createMintWithTransferFee";
 import { createFeeVault } from "../app/createFeeVault";
-import { getCluster } from "../app/helpers";
+import { getCluster, getFeeManagerPdaAuthority } from "../app/helpers";
 import { airdropIfRequired } from "@solana-developers/helpers";
-import { Cluster, clusterApiUrl, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Cluster, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 module.exports = async function (provider) {
   // Configure client to use the provider.
@@ -26,6 +26,8 @@ module.exports = async function (provider) {
     transferFeeConfigAuthority,
     withdrawWithheldAuthority,
     updateMetadataAuthority,
+    dao,
+    creator,
   } = await getAccountConfig();
 
   /**
@@ -44,14 +46,15 @@ module.exports = async function (provider) {
       );
       console.log(`Payer balance: ${newBalance}`);
   }
+  const feeManagerPdaAuthority = getFeeManagerPdaAuthority(payer.publicKey);
 
   // CREATE MINT WITH TRANSFER FEE
   const mintTransactionSig = await createMintWithTransferFee(
     connection,
     mintAuthority,
     supplyHolder,
-    transferFeeConfigAuthority,
-    withdrawWithheldAuthority,
+    feeManagerPdaAuthority,
+    feeManagerPdaAuthority,
     updateMetadataAuthority,
     payer,
     mintKeypair,

@@ -2,13 +2,13 @@ use anchor_lang::prelude::*;
 use anchor_spl::{
     //associated_token::AssociatedToken,
     token_2022::{
-        spl_token_2022::instruction::AuthorityType,
+        spl_token_2022::instruction::AuthorityType::TransferFeeConfig,
         SetAuthority
     }, token_interface::{set_authority, Mint, Token2022}
 };
 
 #[derive(Accounts)]
-pub struct ChangeAuthority<'info> {
+pub struct ChangeFeeConfigAuthority<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     // PDA for authority
@@ -33,12 +33,10 @@ pub struct ChangeAuthority<'info> {
         mint::token_program = token_program //Check mint is Token2020
     )]
     pub mint: InterfaceAccount<'info, Mint>,
-    #[account(mut)]
-    pub payer: Signer<'info>,
     pub token_program: Program<'info, Token2022>, //Setted to TOKEN_2022_PROGRAM_ID
 }
 
-pub fn process_set_authority(ctx: Context<ChangeAuthority>, authority_type: AuthorityType) -> Result<()> {
+pub fn process_set_feeconfig_authority(ctx: Context<ChangeFeeConfigAuthority>) -> Result<()> {
     //Authority is the PDA
     let authority = ctx.accounts.authority.to_account_info();
 
@@ -61,15 +59,10 @@ pub fn process_set_authority(ctx: Context<ChangeAuthority>, authority_type: Auth
                 current_authority: ctx.accounts.pda_authority.to_account_info(),
             }
         ).with_signer(signer_seeds), // using PDA to sign,
-        authority_type,
+        TransferFeeConfig,
         Some(ctx.accounts.new_pda_authority.key()) // Convert to Option<Pubkey>
     )?;
 
     Ok(())
 }
 
-#[error_code]
-pub enum SetAuthorityError {
-    #[msg("AuthorityType can only be TransferFeeConfig or WithheldWithdraw type")]
-    OnlyTransferOrWithheld
-}

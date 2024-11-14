@@ -19,14 +19,14 @@ export async function createFeeVault(
     payer,
     mintKeypair.publicKey,
     withdrawWithheldAuthority,
-    { commitment: "finalized" },
+    { commitment: "confirmed" },
     TOKEN_2022_PROGRAM_ID,
     );
     
     const initialBalance = (
-        await connection.getTokenAccountBalance(feeVaultAccount, "finalized")
+        await connection.getTokenAccountBalance(feeVaultAccount, "confirmed")
     ).value.amount;
     
-    console.log("Current fee vault balance: " + initialBalance + "\n\n");
+    console.log(`Current fee vault ${feeVaultAccount} balance: ${initialBalance} \n\n`);
     return feeVaultAccount;
 }
