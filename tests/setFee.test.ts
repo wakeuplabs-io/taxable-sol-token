@@ -104,34 +104,8 @@ describe("set_fee", () => {
     assert.equal(oldFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
     assert.equal(oldFee.newerTransferFee.transferFeeBasisPoints, feeBasisPoints);
 
-    const newFeeBasisPoints = 200
-    // /// This is how it's manually updated
-    //    const transferFeeConfigAuthority = payer;
-    // const setTransferFeeInstruction = createSetTransferFeeInstruction(
-    //   mint,
-    //   transferFeeConfigAuthority.publicKey,
-    //   [transferFeeConfigAuthority],
-    //   newFeeBasisPoints,
-    //   maxFee,
-    //   TOKEN_2022_PROGRAM_ID
-    // )
-    // /// Add instructions to new transaction
-    // const newTransaction = new Transaction().add(
-    //   setTransferFeeInstruction
-    // );
-
-    // /// Send transaction
-    // const newTransactionSignature = await sendAndConfirmTransaction(
-    //   connection,
-    //   newTransaction,
-    //   [payer], // Signers
-    // );
-    // console.log(
-    //   "\Update  Fee Config:",
-    //   `https://solana.fm/tx/${newTransactionSignature}?cluster=devnet-solana`,
-    // );
-  
     /// Change fees through the contract
+    const newFeeBasisPoints = 200
 
     // Act
     const tx = await program.methods
@@ -156,6 +130,53 @@ describe("set_fee", () => {
     assert.equal(newFee.olderTransferFee.transferFeeBasisPoints, feeBasisPoints);
     assert.equal(newFee.newerTransferFee.transferFeeBasisPoints, newFeeBasisPoints);
 
+  });
+
+  it("Should not set Transfer Fee below 10", async () => {
+    // Arrenge
+
+    const newFeeBasisPoints = 9
+
+    // Act
+    try {
+      const tx = await program.methods
+        .setFee(newFeeBasisPoints)
+        .accounts({
+          mint, 
+          authority: payer.publicKey,
+        })
+        .signers([payer]) //Authority signer
+        .rpc();
+      await confirmTransaction(program.provider.connection, tx);
+      assert.fail('Should not let fee basis points value below 10')
+    } catch(err) {
+      assert.equal(err.error.errorMessage, 'Min fee basis points is 10')
+      assert.equal(err.error.errorCode.code, 'FeeTooLow')
+    }
+  });
+
+
+  it("Should not set Transfer Fee above 300", async () => {
+    // Arrenge
+
+    const newFeeBasisPoints = 301
+
+    // Act
+    try {
+      const tx = await program.methods
+        .setFee(newFeeBasisPoints)
+        .accounts({
+          mint, 
+          authority: payer.publicKey,
+        })
+        .signers([payer]) //Authority signer
+        .rpc();
+      await confirmTransaction(program.provider.connection, tx);
+      assert.fail('Should not let fee basis points value above 300')
+    } catch(err) {
+      assert.equal(err.error.errorMessage, 'Max fee basis points is 300')
+      assert.equal(err.error.errorCode.code, 'FeeTooHigh')
+    }
   });
 
   it("Should change Transfer Fee Authority", async () => {

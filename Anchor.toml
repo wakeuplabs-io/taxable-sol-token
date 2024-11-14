@@ -17,7 +17,7 @@ fee_manager = "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG"
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
