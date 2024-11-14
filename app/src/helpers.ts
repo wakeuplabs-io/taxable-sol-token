@@ -1,19 +1,36 @@
-import { getAccount, getMint, getTransferFeeAmount, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { Cluster, Connection, PublicKey } from "@solana/web3.js";
-import { FEE_MANAGER_PROGRAM_ID } from "./config";
+import { createAssociatedTokenAccountIdempotent, getAccount, getMint, getTransferFeeAmount, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { Cluster, Connection, PublicKey, Signer } from "@solana/web3.js";
+import { getFeeManagerProgram } from "../config";
 
-export const getFeeConfigPdaAuthority = (authority: PublicKey) => { 
+export const getOrCreateATA = async (connection: Connection, payer: Signer, mint: PublicKey, owner: PublicKey) => {
+  // Account CANT BE A PDA
+  const ownerATA = await createAssociatedTokenAccountIdempotent(
+      connection,
+      payer,
+      mint,
+      owner,
+      {commitment: "confirmed"},
+      TOKEN_2022_PROGRAM_ID,
+  );
+  return ownerATA;
+
+}
+
+
+export const getFeeConfigPdaAuthority = async (authority: PublicKey) => { 
+  const {program} = await getFeeManagerProgram();
   const [PDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("pda_authority"), authority.toBuffer()],
-    FEE_MANAGER_PROGRAM_ID,
+    program.programId,
   );
   return PDA;
 }
 
-export const getWithdrawPdaAuthority = (authority: PublicKey, mint: PublicKey) => { 
+export const getWithdrawPdaAuthority = async (authority: PublicKey, mint: PublicKey) => { 
+  const {program} = await getFeeManagerProgram();
   const [PDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("creator_and_dao"), authority.toBuffer(), mint.toBuffer()],
-    FEE_MANAGER_PROGRAM_ID,
+    program.programId,
   );
   return PDA;
 }
@@ -23,13 +40,20 @@ export const getTokenAccountBalance = async (connection: Connection, account: Pu
   return BigInt(tokenAmount.value.amount);
 }
 
+export const getMintInfo = async (connection: Connection, mint: PublicKey) => {
+  return getMint(
+    connection, 
+    mint,
+    "confirmed",
+    TOKEN_2022_PROGRAM_ID
+  );
+}
+
 export const getMintWithledTransferFees = async (connection: Connection, mint: PublicKey) => {
   const withheldFees = getTransferFeeConfig(
-    await getMint(
+    await getMintInfo(
         connection, 
-        mint,
-        "confirmed",
-        TOKEN_2022_PROGRAM_ID
+        mint
     ),
   );
   return withheldFees?.withheldAmount || BigInt(0)

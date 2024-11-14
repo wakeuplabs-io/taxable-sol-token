@@ -1,10 +1,11 @@
+import anchor, { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
 import { getKeypairFromEnvironment, addKeypairToEnvFile, getKeypairFromFile } from "@solana-developers/helpers";
 import { Cluster, clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
-import feeManager from "../target/idl/fee_manager.json";
-
-export const FEE_MANAGER_PROGRAM_ID = new PublicKey(feeManager.address);
+import {FeeManager} from "./src/idl/fee_manager";
+import idl from "./src/idl/fee_manager.json";
 
 export function toCluster(clusterString: string): Cluster {
     if (clusterString === "mainnet-beta" || 
@@ -22,9 +23,31 @@ export const getNetworkConfig = () => {
 
     return {
         cluster,
-        connection,
+        connection
     }
 }
+
+export const getFeeManagerProgram = async() => {    // Get Program
+    const networkConfig = getNetworkConfig();
+    const accountConfig = await getAccountConfig()
+
+    const wallet = new Wallet(accountConfig.payer)
+    // set the local provider
+    const provider = new AnchorProvider(networkConfig.connection, wallet, {
+        commitment: "confirmed",
+    });
+    anchor.setProvider(provider) 
+    const program = new Program(idl as FeeManager);
+
+    return {
+        wallet,
+        provider,
+        program,
+        ...networkConfig,
+        ...accountConfig,
+    }
+}
+
 export const getTokenConfig = () => {
     // Token Config
     const decimals = Number(process.env.DECIMALS || 8);
@@ -67,7 +90,8 @@ export const getAccountConfig = async () => {
     } else {
         mintKeypair = getKeypairFromEnvironment('MINT_KEYPAIR');
     }
-    console.log("mint public key: " + mintKeypair.publicKey.toBase58() + "\n");
+    const mint =  mintKeypair.publicKey;
+    console.log("mint public key: " + mint.toBase58() + "\n");
 
     // Account that will hold the supply of tokens pre minted
     const supplyHolder = process.env.SUPPLY_HOLDER ? new PublicKey(process.env.SUPPLY_HOLDER) : payer.publicKey;
@@ -101,6 +125,7 @@ export const getAccountConfig = async () => {
         payer,
         //token
         mintKeypair,
+        mint,
         supplyHolder,
         mintAuthority,
         transferFeeConfigAuthority,

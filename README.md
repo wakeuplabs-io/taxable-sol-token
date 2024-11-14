@@ -161,10 +161,66 @@ anchor migrate
 
 A new variable will appear on the .env file called `MINT_KEY` this is the private key of the generated SPL TOKEN.
 
-If you want to re run the mifration you need to delete `MINT_KEY`
+If you want to re run the migration you need to delete `MINT_KEY`
+
+### Copy IDL
+
+IDL will be used in the scripts or front end to interact with the program, that's why we copy it from the target folder that is not pushed ni the repo into the app/src/idl folder
+
+To do this run
+
+```bash
+yarn copy-idl
+```
+
+### Deploy IDL
+
+This is an optional step but it's good to know that you can publish your IDL file on the blockchain. This allows for other tools in the Solana ecosystem to recognise your program and understand what it has to offer.
+
+To publish your IDL file, all you need to do is run the following in the terminal.
+
+```bash
+anchor idl init <programId> -f <target/idl/fee_manager.json>
+```
+
+And if your program changes in the future, you can upgrade the published IDL by running:
+
+```bash
+anchor idl upgrade <programId> -f <target/idl/fee_manager.json>
+```
+
+### Publishing
+
+The Anchor Program Registry at apr.dev hosts a catalog of verified programs on Solana both written with and without Anchor. It is recommended that authors of smart contracts publish their source to promote best practices for security and transparency.
+
+To publish the code to the Anchor Program Registry.
+
+```bash
+yarn publish:code
+```
+
+This can only be done on `mainnet`
 
 ## Scripts
 
 We have added some scripts to interact with the token and program via typescript.
 
 It will create a destination account and will transfer tokens to it, as it checks that source amount, destination amount and fees amount correspond to expected values.
+
+### Get information about a token
+
+```bash
+yarn token-info
+```
+
+### Transfer from Suuply holder to a destination account
+
+```bash
+yarn transfer
+```
+
+### Harvest and withdraw fees to the DAO and Creator
+
+```bash
+yarn withdraw
+```

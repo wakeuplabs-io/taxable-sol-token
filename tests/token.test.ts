@@ -2,12 +2,12 @@ import * as anchor from "@coral-xyz/anchor";
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import { getAccountConfig, getNetworkConfig, getTokenConfig } from "../app/config";
 import { createAccount, TOKEN_2022_PROGRAM_ID, mintTo, getTransferFeeAmount, getAccount, getAssociatedTokenAddressSync, createAssociatedTokenAccountIdempotent, unpackAccount, createTransferInstruction, AuthorityType, createAssociatedTokenAccountInstruction, createInitializeInstruction, createInitializeMetadataPointerInstruction, createInitializeMintInstruction, createInitializeTransferFeeConfigInstruction, createMintToInstruction, createSetAuthorityInstruction, ExtensionType, getAssociatedTokenAddress, getMintLen, LENGTH_SIZE, TYPE_SIZE } from "@solana/spl-token";
-import { transferTokens } from "../app/transferTokens";
-import { getCluster, getTokenAccountBalance, getWithledTransferFees } from "../app/helpers";
-import { withdrwalAllFees } from "../app/withdrawFees";
+import { transferTokens } from "../app/src/transferTokens";
+import { getCluster, getTokenAccountBalance, getWithledTransferFees } from "../app/src/helpers";
+import { withdrwalAllFees } from "../app/src/withdrawFees";
 import { assert } from "chai";
-import { createFeeVault } from "../app/createFeeVault";
-import { createMintWithTransferFee } from "../app/createMintWithTransferFee";
+import { createFeeVault } from "../app/src/createFeeVault";
+import { createMintWithTransferFee } from "../app/src/createMintWithTransferFee";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { TokenMetadata, pack } from "@solana/spl-token-metadata";
 

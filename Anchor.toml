@@ -16,8 +16,11 @@ fee_manager = "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG"
 [registry]
 url = "https://anchor.projectserum.com"
 
+[workspace]
+types = "app/src/idl/"
+
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

@@ -5,9 +5,9 @@ import { assert } from "chai";
 import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeMintInstruction, createInitializeTransferFeeConfigInstruction, getMintLen, getAssociatedTokenAddressSync, createAssociatedTokenAccountIdempotent, mintTo, transferCheckedWithFee, createAccount, harvestWithheldTokensToMint, getTransferFeeAmount, getAccount, getMint, getTransferFeeConfig } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { getMintWithledTransferFees, getTokenAccountBalance, getWithledTransferFees } from "../app/helpers";
+import { getMintWithledTransferFees, getTokenAccountBalance, getWithledTransferFees } from "../app/src/helpers";
 import { confirmTransaction } from "@solana-developers/helpers";
-import { getAllAccountsWithheldTokens } from "../app/withdrawFees";
+import { getAllAccountsWithheldTokens } from "../app/src/withdrawFees";
 
 describe("Destination & Withdraw", () => {
   // Configure the client to use the local cluster.
@@ -145,7 +145,7 @@ describe("Destination & Withdraw", () => {
       { commitment: "confirmed" },
       TOKEN_2022_PROGRAM_ID,
     );
-  // End befofre
+  // End before
   });
 
   it("Should fail to withdraw whithheld if not initialized", async () => {
@@ -160,7 +160,6 @@ describe("Destination & Withdraw", () => {
         .accounts({
           mint: mint,
           authority: randomKeypair.publicKey,
-          payer: payer.publicKey,
           creator: creatorKeypair.publicKey,
           dao: daoKeypair.publicKey,
         })

@@ -1,9 +1,7 @@
-const anchor = require("@coral-xyz/anchor");
-import { Program } from "@coral-xyz/anchor";
+import anchor, { Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Keypair, sendAndConfirmTransaction } from "@solana/web3.js";
-import { FeeManager } from "../target/types/fee_manager";
+import { FeeManager } from "./idl/fee_manager";
 import { createAssociatedTokenAccountIdempotent, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { confirmTransaction } from "@solana-developers/helpers";
 
 export async function createFeeManager(
   connection: Connection,
