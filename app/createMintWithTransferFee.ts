@@ -192,7 +192,7 @@ export async function createMintWithTransferFee(
     connection,
     mintTransaction,
     [payer, mintKeypair],
-    { commitment: "finalized" },
+    { commitment: "confirmed" },
   );
   console.log("Transaction sent");
 

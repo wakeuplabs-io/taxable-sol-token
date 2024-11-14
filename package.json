@@ -4,7 +4,10 @@
   "description": "Taxable SPL token on solana",
   "main": "src/index.ts",
   "scripts": {
+    "clean": "anchor clean",
     "build": "anchor build",
+    "deploy": "anchor deploy",
+    "migrate": "anchor migrate",
     "test": "anchor test",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"

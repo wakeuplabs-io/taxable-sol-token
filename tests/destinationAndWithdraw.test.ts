@@ -148,7 +148,7 @@ describe("Destination & Withdraw", () => {
   // End befofre
   });
 
-  it("Should fail to withdraw whith if not initialized", async () => {
+  it("Should fail to withdraw whithheld if not initialized", async () => {
     // if previous test fails this will fail too
     /// Arrange
     const randomKeypair = Keypair.generate();
@@ -158,7 +158,7 @@ describe("Destination & Withdraw", () => {
       const tx = await program.methods
         .withdraw(new anchor.BN(initialWithheldFeesMint.toString()))
         .accounts({
-          mintAccount: mint,
+          mint: mint,
           authority: randomKeypair.publicKey,
           payer: payer.publicKey,
           creator: creatorKeypair.publicKey,
@@ -179,7 +179,7 @@ describe("Destination & Withdraw", () => {
     const tx = await program.methods
       .initialize()
       .accounts({
-        mintAccount: mint,
+        mint: mint,
         authority: authority.publicKey,
         payer: payer.publicKey,
         dao: daoKeypair.publicKey,
@@ -202,7 +202,7 @@ describe("Destination & Withdraw", () => {
       const tx = await program.methods
         .initialize()
         .accounts({
-          mintAccount: mint,
+          mint: mint,
           authority: authority.publicKey,
           payer: payer.publicKey,
           dao: daoKeypair.publicKey,
@@ -303,7 +303,6 @@ describe("Destination & Withdraw", () => {
       const initialWithheldFeesMint = await getMintWithledTransferFees(connection, mint);
       assert.notEqual(initialWithheldFeesMint, BigInt(0));
       const amountToWithdraw = initialWithheldFeesMint;
-      console.log('initialWithheldFeesMint', initialWithheldFeesMint)
 
       const feeVault = getAssociatedTokenAddressSync(
         mint,
@@ -313,7 +312,6 @@ describe("Destination & Withdraw", () => {
       );
 
       const initialFeeVaultTokenAmount = await getTokenAccountBalance(connection, feeVault);
-      console.log('initialFeeVaultTokenAmount', initialFeeVaultTokenAmount);
       const initialCreatorTokenAmount = await getTokenAccountBalance(connection, creatorTokenAccount);
       const initialDaoTokenAmount = await getTokenAccountBalance(connection, daoTokenAccount);
 
@@ -321,13 +319,12 @@ describe("Destination & Withdraw", () => {
       const tx = await program.methods
         .withdraw(new anchor.BN(amountToWithdraw.toString()))
         .accounts({
-          mintAccount: mint,
+          mint: mint,
           authority: authority.publicKey,
-          payer: payer.publicKey,
           creator: creatorKeypair.publicKey,
           dao: daoKeypair.publicKey,
         })
-        .signers([payer, authority]) //Authority signer
+        .signers([authority]) //Authority signer
         .rpc();
       await confirmTransaction(connection, tx);
 
@@ -352,7 +349,6 @@ describe("Destination & Withdraw", () => {
       const finalDaoTokenAmount = await getTokenAccountBalance(connection, daoTokenAccount);
       assert.equal(finalDaoTokenAmount - initialDaoTokenAmount, expectedAmount);
     });
-
 
 
     it("Should set new Creator and Dao token destination", async () => {
@@ -382,13 +378,12 @@ describe("Destination & Withdraw", () => {
       const tx = await program.methods
       .setDestination()
       .accounts({
-        mintAccount: mint,
+        mint: mint,
         authority: authority.publicKey,
-        payer: payer.publicKey,
         newDao: newDaoKeypair.publicKey,
         newCreator: newCreatorKeypair.publicKey,
       })
-      .signers([payer, authority]) //Authority signer
+      .signers([authority]) //Authority signer
       .rpc();
       await confirmTransaction(connection, tx);
       
@@ -407,13 +402,12 @@ describe("Destination & Withdraw", () => {
         const tx = await program.methods
           .withdraw(new anchor.BN(initialWithheldFeesMint.toString())) // Convert bigint to BN
           .accounts({
-            mintAccount: mint,
+            mint: mint,
             authority: authority.publicKey,
-            payer: payer.publicKey,
             creator: creatorKeypair.publicKey,
             dao: daoKeypair.publicKey,
           })
-          .signers([payer, authority]) //Authority signer
+          .signers([authority]) //Authority signer
           .rpc();
         await confirmTransaction(connection, tx);
         assert.fail("Withdraw was successful even though DAO and Creator are invalid");

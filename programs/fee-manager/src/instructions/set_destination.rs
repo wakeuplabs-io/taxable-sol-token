@@ -17,19 +17,19 @@ pub struct InitDestination<'info> {
         mut,
         mint::token_program = token_program //Check mint is Token2020
     )]
-    pub mint_account: InterfaceAccount<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
     /// CHECK: Read only authority
     pub dao: AccountInfo<'info>,
     /// CHECK: Read only authority
     pub creator: AccountInfo<'info>,
     #[account(
-        associated_token::mint = mint_account,
+        associated_token::mint = mint,
         associated_token::authority = creator,
         associated_token::token_program = token_program
     )]
     pub creator_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        associated_token::mint = mint_account,
+        associated_token::mint = mint,
         associated_token::authority = dao,
         associated_token::token_program = token_program
     )]
@@ -38,14 +38,14 @@ pub struct InitDestination<'info> {
         init,
         payer = payer,
         space = CreatorAndDao::LEN,
-        seeds = [b"creator_and_dao", authority.key().as_ref(), mint_account.key().as_ref()],
+        seeds = [b"creator_and_dao", authority.key().as_ref(), mint.key().as_ref()],
         bump,
     )]
     pub creator_and_dao: Box<Account<'info, CreatorAndDao>>,
     #[account(
         init,
         payer = payer,
-        associated_token::mint = mint_account,
+        associated_token::mint = mint,
         associated_token::authority = creator_and_dao,
         associated_token::token_program = token_program
     )]
@@ -75,26 +75,26 @@ pub struct SetDestination<'info> {
         mut,
         mint::token_program = token_program //Check mint is Token2020
     )]
-    pub mint_account: InterfaceAccount<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
     /// CHECK: Read only authority
     pub new_dao: AccountInfo<'info>,
     /// CHECK: Read only authority
     pub new_creator: AccountInfo<'info>,
     #[account(
-        associated_token::mint = mint_account,
+        associated_token::mint = mint,
         associated_token::authority = new_creator,
         associated_token::token_program = token_program
     )]
     pub new_creator_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        associated_token::mint = mint_account,
+        associated_token::mint = mint,
         associated_token::authority = new_dao,
         associated_token::token_program = token_program
     )]
     pub new_dao_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
-        seeds = [b"creator_and_dao", authority.key().as_ref(), mint_account.key().as_ref()],
+        seeds = [b"creator_and_dao", authority.key().as_ref(), mint.key().as_ref()],
         bump
     )]
     pub creator_and_dao: Box<Account<'info, CreatorAndDao>>,
@@ -103,8 +103,6 @@ pub struct SetDestination<'info> {
     pub payer: Signer<'info>,
     pub token_program: Program<'info, Token2022>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    /// Solana ecosystem accounts
-    pub system_program: Program<'info, System>,
 }
 
 pub fn process_set_destination(ctx: Context<SetDestination>) -> Result<()> {

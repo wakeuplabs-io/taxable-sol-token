@@ -1,6 +1,22 @@
 import { getAccount, getMint, getTransferFeeAmount, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { Cluster, Connection, PublicKey } from "@solana/web3.js";
+import { FEE_MANAGER_PROGRAM_ID } from "./config";
 
+export const getFeeConfigPdaAuthority = (authority: PublicKey) => { 
+  const [PDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("pda_authority"), authority.toBuffer()],
+    FEE_MANAGER_PROGRAM_ID,
+  );
+  return PDA;
+}
+
+export const getWithdrawPdaAuthority = (authority: PublicKey, mint: PublicKey) => { 
+  const [PDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("creator_and_dao"), authority.toBuffer(), mint.toBuffer()],
+    FEE_MANAGER_PROGRAM_ID,
+  );
+  return PDA;
+}
 
 export const getTokenAccountBalance = async (connection: Connection, account: PublicKey) => {
   const tokenAmount = await connection.getTokenAccountBalance(account, "confirmed");

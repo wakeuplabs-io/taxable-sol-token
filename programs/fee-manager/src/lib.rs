@@ -1,7 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::spl_token_2022::instruction::AuthorityType:: {
-            TransferFeeConfig, WithheldWithdraw
-        };
 
 mod instructions;
 use instructions::*;
@@ -9,7 +6,7 @@ use instructions::*;
 mod state;
 
 
-declare_id!("BnhW54yM9hZ1pFjfEkZePiniD6TZjGgRLjYqP6dFhCNQ");
+declare_id!("6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG");
 
 #[program]
 pub mod fee_manager {
@@ -29,18 +26,15 @@ pub mod fee_manager {
         process_set_fee(ctx, transfer_fee_basis_points)
     }
 
-    pub fn set_feeconfig_authority(ctx: Context<ChangeAuthority>) -> Result<()> {
-        process_set_authority(ctx, TransferFeeConfig)
+    pub fn set_feeconfig_authority(ctx: Context<ChangeFeeConfigAuthority>) -> Result<()> {
+        process_set_feeconfig_authority(ctx)
     }
 
-    pub fn set_withdraw_authority(ctx: Context<ChangeAuthority>) -> Result<()> {
-        process_set_authority(ctx, WithheldWithdraw)
+    pub fn set_withdraw_authority(ctx: Context<ChangeWithdrawAuthority>) -> Result<()> {
+        process_set_withdraw_authority(ctx)
     }
 
     pub fn set_destination(ctx: Context<SetDestination>) -> Result<()> {
         process_set_destination(ctx)
     }
 }
-
-// #[derive(Accounts)]
-// pub struct Initialize {}

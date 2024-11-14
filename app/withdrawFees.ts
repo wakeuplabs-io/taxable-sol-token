@@ -60,7 +60,7 @@ export const withdrwalAllFees = async (
     withdrawWithheldAuthority,
     [],
     accountsToWithdrawFrom,
-    { commitment: "finalized" },
+    { commitment: "confirmed" },
     TOKEN_2022_PROGRAM_ID,
   );
   return withdrawFeesSignature;
