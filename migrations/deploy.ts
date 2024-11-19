@@ -25,11 +25,12 @@ module.exports = async function (provider) {
     supplyHolder,
     transferFeeConfigAuthority,
     withdrawAuthorityKeypair,
-    updateMetadataAuthority,
+    updateMetadataAuthorityKeypair,
     dao,
     creator,
   } = await getAccountConfig();
 
+  const updateMetadataAuthority = updateMetadataAuthorityKeypair.publicKey
   /**
   * Create a connection and initialize a keypair if one doesn't already exists.
   * If a keypair exists, airdrop a SOL token if needed.
