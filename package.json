@@ -18,7 +18,8 @@
     "transfer": "esrun ./app/scripts/transferTokens.ts",
     "withdraw": "esrun ./app/scripts/withdrawFees.ts",
     "set-fee": "esrun ./app/scripts/setFee.ts",
-    "set-destination": "esrun ./app/scripts/setDestination.ts"
+    "set-destination": "esrun ./app/scripts/setDestination.ts",
+    "set-metadata": "esrun ./app/scripts/setMetadata.ts"
   },
   "keywords": [
     "solana",

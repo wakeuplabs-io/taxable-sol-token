@@ -1,15 +1,13 @@
 import { getFeeManagerProgram, getNetworkConfig } from "../config";
 import { PublicKey } from "@solana/web3.js";
 import { geCreatorAndDaoPDA, getMintInfo, getTokenAccountInfo } from "../src/helpers";
-import { getTransferFeeConfig } from "@solana/spl-token";
+import { getTokenMetadata, getTransferFeeConfig, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
-const TOKEN_ADDRESS = "2JrU9FCnueLuBEUC6yjFYYQbhdEhWB5ic36TYkD6bJsv";
 
-const getTokenInfoScript = async (tokenAddress: string) => {
-    const {connection, cluster, program, withdrawAuthorityKeypair} = await getFeeManagerProgram()
+const getTokenInfoScript = async () => {
+    const {connection, cluster, program, mint, withdrawAuthorityKeypair} = await getFeeManagerProgram()
     console.log("connected to", cluster)
 
-    const mint =  new PublicKey(tokenAddress)
     console.log("get Mint", mint.toBase58())
 
     // Decimals and token info
@@ -17,11 +15,15 @@ const getTokenInfoScript = async (tokenAddress: string) => {
         connection, 
         mint
     );
-    console.log('Token information', mintInfo);
+    console.log('Token information', mintInfo, '\n');
 
-    // Fees and extension info
+    // Token Fees and extension info
     const feeConfig = getTransferFeeConfig(mintInfo);
-    console.log('Fee config information', feeConfig);
+    console.log('Fee config information', feeConfig, '\n');
+
+    // Token Metadata
+    const metadata  = await getTokenMetadata(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+    console.log('Metadata', metadata, '\n');
 
     // Get Creator and Dao setted on Fee Manager info
     const creatorAndDaoPDA = await geCreatorAndDaoPDA(withdrawAuthorityKeypair.publicKey, mint);
@@ -34,4 +36,4 @@ const getTokenInfoScript = async (tokenAddress: string) => {
     console.log('Creator to Withdraw', creatorTokenInfo.owner.toBase58())
 }
 
-getTokenInfoScript(TOKEN_ADDRESS);
+getTokenInfoScript();

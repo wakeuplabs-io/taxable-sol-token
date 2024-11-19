@@ -103,8 +103,6 @@ export const getAccountConfig = async () => {
     // MintAuhtority will not actually be used since we will mint max supply and then remove the minter
     const mintAuthority = process.env.MINT_AUTHORITY ? new PublicKey(process.env.MINT_AUTHORITY) : payer.publicKey;
     console.log(`mintAuthority public key: ${mintAuthority.toBase58()}`);
-    const updateMetadataAuthority = process.env.UPDATE_METADATA_AUTHORITY ? new PublicKey(process.env.UPDATE_METADATA_AUTHORITY) : payer.publicKey;
-    console.log(`updateMetadataAuthority public key: ${updateMetadataAuthority.toBase58()}`);
 
     // Fee Manager
     const dao = process.env.DAO ? new PublicKey(process.env.DAO) : payer.publicKey;
@@ -121,6 +119,9 @@ export const getAccountConfig = async () => {
     const transferFeeConfigKeypair = process.env.TRANSFER_FEE_CONFIG_KEYPAIR ? getKeypairFromEnvironment('TRANSFER_FEE_CONFIG_KEYPAIR') : payer;
     const transferFeeConfigAuthority = transferFeeConfigKeypair.publicKey;
     console.log(`transferFeeConfigAuthority public key: ${transferFeeConfigAuthority.toBase58()}`);
+
+    const updateMetadataAuthorityKeypair: Keypair = process.env.METADATA_AUTHORITY_KEYPAIR ? getKeypairFromEnvironment('METADATA_AUTHORITY_KEYPAIR') : payer;
+    console.log(`withdrawAuthorityKeypair public key: ${updateMetadataAuthorityKeypair.publicKey.toBase58()}`);
     
 
     console.log("\n\n")
@@ -132,14 +133,14 @@ export const getAccountConfig = async () => {
         supplyHolder,
         mintAuthority,
         transferFeeConfigAuthority,
-        updateMetadataAuthority,
         //fee manager
         dao,
         creator,
         // test accounts
         supplyHolderKeypair,
         withdrawAuthorityKeypair,
-        transferFeeConfigKeypair
+        transferFeeConfigKeypair,
+        updateMetadataAuthorityKeypair,
     };
 }
 

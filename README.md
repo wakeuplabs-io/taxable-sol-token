@@ -142,6 +142,22 @@ cluster = "devnet"
 
 It can be  localnet, devnet, testnet or mainnet.
 
+### Aidrop
+
+If you are on devnet make sure to add funds to your wallet before deploying
+
+```bash
+solana airdrop 5
+```
+
+Alternativly you can use the website https://faucet.solana.com/ to ask an airdrop on a certain address.
+
+To check the address of the deployer use
+
+```bash
+solana address
+```
+
 ### Run deployment
 
 First we will deploy the `fee-manager` contract that will be used as the Authority for Tax Fee Config and Withdraw Withhelded Tokens
@@ -235,4 +251,10 @@ yarn set-fee
 
 ```bash
 yarn set-destination
+```
+
+### Update Metadata name, symbol and uri
+
+```bash
+yarn set-metadata
 ```
