@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/fee_manager.json`.
  */
 export type FeeManager = {
-  "address": "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG",
+  "address": "8kP96CGcqAd4N9Hv7TY78HCSRuL9TygimDZwJ8juMz1L",
   "metadata": {
     "name": "feeManager",
     "version": "0.1.0",

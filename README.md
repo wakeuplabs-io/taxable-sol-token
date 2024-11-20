@@ -163,11 +163,29 @@ solana address
 First we will deploy the `fee-manager` contract that will be used as the Authority for Tax Fee Config and Withdraw Withhelded Tokens
 
 ```bash
+anchor build
+```
+
+```bash
 anchor deploy
 ```
 
 When the deploy is done, it will create a `target` folder that contains the compiled program, idl and types.
 Be aware that `target` folder is regenerated every time we run the deploy, and it gets deleted if we run anchor clean, so we recommend backing it up when deploying the final version.
+
+This will generate a new program ID in target/idl/fee_manager.json, Update the program ID in Anchor.toml and in the program/fee-manager/src/lib.rs and in target/types/fee-manager.ts, then Build the program again
+
+```bash
+anchor build
+```
+
+IDL will be used in the scripts or front end to interact with the program, that's why we copy it from the target folder that is not pushed ni the repo into the app/src/idl folder
+
+To do this run
+
+```bash
+yarn copy-idl
+```
 
 After the fee-manager we are going to deploy and config our spl token into Solana using anchor mirate, the transaction will be printed together with the explorer url on the console
 
@@ -179,15 +197,6 @@ A new variable will appear on the .env file called `MINT_KEY` this is the privat
 
 If you want to re run the migration you need to delete `MINT_KEY`
 
-### Copy IDL
-
-IDL will be used in the scripts or front end to interact with the program, that's why we copy it from the target folder that is not pushed ni the repo into the app/src/idl folder
-
-To do this run
-
-```bash
-yarn copy-idl
-```
 
 ### Deploy IDL
 

@@ -1,7 +1,6 @@
 import anchor, { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
 import { getKeypairFromEnvironment, addKeypairToEnvFile, getKeypairFromFile } from "@solana-developers/helpers";
 import { Cluster, clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
-import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 import {FeeManager} from "./src/idl/fee_manager";

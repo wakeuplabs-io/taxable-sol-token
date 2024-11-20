@@ -8,7 +8,7 @@
     "build": "anchor build",
     "deploy": "anchor deploy",
     "migrate": "anchor migrate",
-    "copy-idl": "mkdir -p app/src/idl && cp target/idl/fee_manager.json app/src/idl/fee_manager.json",
+    "copy-idl": "rm -rf app/src/idl && mkdir -p app/src/idl && cp target/idl/fee_manager.json app/src/idl/fee_manager.json && cp target/types/fee_manager.ts app/src/idl/fee_manager.ts",
     "publish:idl": "anchor idl init 6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG -f target/idl/fee_manager.json",
     "publish:code": "anchor publish fee_manager",
     "test": "anchor test",

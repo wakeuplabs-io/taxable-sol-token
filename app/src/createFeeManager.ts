@@ -1,7 +1,11 @@
-import anchor, { Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey, Keypair, sendAndConfirmTransaction } from "@solana/web3.js";
+const anchor = require("@coral-xyz/anchor");
+import { Program } from "@coral-xyz/anchor";
+import { Connection, PublicKey, Keypair } from "@solana/web3.js";
 import { FeeManager } from "./idl/fee_manager";
+import idl from "./idl/fee_manager.json";
 import { createAssociatedTokenAccountIdempotent, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { confirmTransaction } from "@solana-developers/helpers";
+import { FEE_MANAGER_PROGRAM_ID } from "../config";
 
 export async function createFeeManager(
   connection: Connection,
@@ -12,9 +16,9 @@ export async function createFeeManager(
   creator: PublicKey,
   provider
 ) {
-  anchor.setProvider(provider)
-  const program = anchor.workspace.FeeManager as Program<FeeManager>;
-  console.log('Program started')
+  anchor.setProvider(provider);
+  const program = new Program(idl as FeeManager);
+
   // Create asociated token accounts
   const creatorTokenAccount = await createAssociatedTokenAccountIdempotent(
     connection,
@@ -36,7 +40,7 @@ export async function createFeeManager(
   );
   console.log(`DAO Token address ${daoTokenAccount}`)
 
-  const initFeeManagerDestinationTx = await program.methods
+  const initFeeManagerSiganture= await program.methods
       .initialize()
       .accounts({
         mint: mint,
@@ -46,13 +50,12 @@ export async function createFeeManager(
         creator,
       })
       .signers([payer, withdrawAuthorityKeypair]) //Authority signer
-      .transaction();
+      .rpc({commitment: "confirmed"});
 
-    const signature = await sendAndConfirmTransaction(
-      connection, 
-      initFeeManagerDestinationTx, 
-      [payer, withdrawAuthorityKeypair], 
-      {commitment:"confirmed"}
+    console.log(`Initialize the Fee Manager`);
+    const signature = await confirmTransaction(
+      connection,
+      initFeeManagerSiganture
     );
     
     return signature;

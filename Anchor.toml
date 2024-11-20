@@ -5,19 +5,16 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-fee_manager = "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG"
+fee_manager = "8kP96CGcqAd4N9Hv7TY78HCSRuL9TygimDZwJ8juMz1L"
 
 [programs.devnet]
-fee_manager = "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG"
+fee_manager = "8kP96CGcqAd4N9Hv7TY78HCSRuL9TygimDZwJ8juMz1L"
 
 [programs.mainnet]
-fee_manager = "6ZdHb25JHtNYK3AhhsZC253wmLpMsJpySCXicatxY8gG"
+fee_manager = "8kP96CGcqAd4N9Hv7TY78HCSRuL9TygimDZwJ8juMz1L"
 
 [registry]
 url = "https://anchor.projectserum.com"
-
-[workspace]
-types = "app/src/idl/"
 
 [provider]
 cluster = "devnet"
